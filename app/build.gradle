@@ -24,6 +24,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.amazonaws:aws-android-sdk-core:2.1.10'
     compile 'com.amazonaws:aws-android-sdk-s3:2.1.10'
+    compile 'com.squareup.dagger:dagger:1.2.2'
     compile 'com.jakewharton:butterknife:6.1.0'
-
 }
