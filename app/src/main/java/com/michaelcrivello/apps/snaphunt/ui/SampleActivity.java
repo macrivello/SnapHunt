@@ -1,41 +1,34 @@
-package com.michaelcrivello.apps.snaphunt;
+package com.michaelcrivello.apps.snaphunt.ui;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressListener;
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
-import com.amazonaws.mobileconnectors.s3.transfermanager.TransferProgress;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
-
-import org.w3c.dom.Text;
+import com.michaelcrivello.apps.snaphunt.R;
 
 import java.io.File;
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.InjectView;
+import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectView;
+
 /**
  * Created by michael on 3/11/15.
  * Sample Activity to test uploading photos to S3.
  */
-public class SampleActivity extends Activity {
+public class SampleActivity extends RoboActivity {
 
-    private static final String SH_BUCKET_NAME = "snaphunt-storage/photo-upload";
+    private static final String SH_BUCKET_NAME = "snaphunt-storage";
     private final String TAG = SampleActivity.this.getClass().getCanonicalName();
     @InjectView(R.id.selectPhotoText) TextView selectedPhotoText;
     @InjectView(R.id.uploadUrlText) TextView uploadUrlText;
@@ -48,21 +41,13 @@ public class SampleActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sample_photo_upload_activity);
-        ButterKnife.inject(this);
         initAwsService();
     }
 
     private void initAwsService() {
 
-        // Initialize the Amazon Cognito credentials provider
-        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                SampleActivity.this     , // Context
-                "us-east-1:4011341e-e994-4af4-97f5-7bf5f03e04bc", // Identity Pool ID
-                Regions.US_EAST_1 // Region
-        );
-
-        transferManager = new TransferManager(credentialsProvider);
-        new ListMyBuckets().execute();
+        transferManager = new TransferManager();
+//        new ListMyBuckets().execute();
     }
 
     private class ListMyBuckets extends AsyncTask<Object, Void, List<Bucket>> {
