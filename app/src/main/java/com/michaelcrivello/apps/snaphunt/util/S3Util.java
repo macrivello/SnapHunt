@@ -18,7 +18,6 @@ import android.content.Context;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.auth.CognitoCredentialsProvider;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 
 /* 
@@ -34,8 +33,17 @@ public class S3Util {
             sCredProvider = new CognitoCachingCredentialsProvider(
                     context,
                     Constants.COGNITO_POOL_ID,    /* Identity Pool ID */
-                    Regions.US_EAST_1           /* Region */
+                    Constants.AWS_REGION           /* Region */
             );
+
+//            sCredProvider = new CognitoCachingCredentialsProvider(
+//                    context, // get the context for the current activity
+//                    Constants.AWS_ACCOUNT_ID, // your AWS Account id
+//                    Constants.COGNITO_POOL_ID, // your identity pool id
+//                    Constants.COGNITO_ROLE_UNAUTH,// an authenticated role ARN
+//                    Constants.COGNITO_ROLE_AUTH, // an unauthenticated role ARN
+//                    Constants.AWS_REGION //Region
+//            );
 
             sCredProvider.refresh();
         }
@@ -43,7 +51,7 @@ public class S3Util {
     }
 
     public static String getPrefix(Context context) {
-        return getCredProvider(context).getIdentityId() + "/";
+        return Constants.PHOTO_UPLOAD_FOLDER + "/";
     }
 
     public static AmazonS3Client getS3Client(Context context) {
