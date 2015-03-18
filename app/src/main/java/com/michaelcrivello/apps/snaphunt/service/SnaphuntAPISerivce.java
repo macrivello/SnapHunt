@@ -42,6 +42,6 @@ public class SnaphuntApiSerivce extends RoboService {
 
     @Subscribe
     public void getUsers(ApiRequest apiRequest) {
-
+        
     }
 }
