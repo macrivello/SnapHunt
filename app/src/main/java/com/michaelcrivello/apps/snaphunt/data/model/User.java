@@ -1,4 +1,4 @@
-package com.michaelcrivello.apps.snaphunt.model;
+package com.michaelcrivello.apps.snaphunt.data.model;
 
 import java.util.List;
 

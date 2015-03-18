@@ -26,6 +26,8 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
+import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
+import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.event.GcmMessage;
 import com.michaelcrivello.apps.snaphunt.event.RoundPhotoUpload;
 import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
@@ -40,6 +42,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import roboguice.activity.RoboActivity;
@@ -59,6 +62,8 @@ public class SampleActivity extends RoboActivity {
 
     // Otto Event Bus
     @Inject Bus bus;
+    // Retrofit RestAdapter
+//    @Inject SnaphuntApi snaphuntApi;
 
     // File Uploading
     private File selectedPhotoFile;
@@ -115,6 +120,10 @@ public class SampleActivity extends RoboActivity {
 
         // Upload progress is returned as S3TransferProgress event
         bus.post(new RoundPhotoUpload(selectedPhotoFile));
+
+        //TESTING RETROFIT
+//        List<User> users = snaphuntApi.listUsers();
+//        Ln.d(users);
     }
 
     public void selectPhoto(View v) {
