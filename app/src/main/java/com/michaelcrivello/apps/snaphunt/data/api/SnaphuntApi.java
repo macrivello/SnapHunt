@@ -8,11 +8,20 @@ import com.michaelcrivello.apps.snaphunt.util.Constants;
 
 import java.util.List;
 
+import retrofit.Callback;
 import retrofit.RequestInterceptor;
+import retrofit.client.Response;
 import retrofit.converter.Converter;
 import retrofit.converter.GsonConverter;
+import retrofit.http.Body;
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
+import retrofit.http.Header;
+import retrofit.http.POST;
+import retrofit.http.PUT;
 import retrofit.http.Path;
+import retrofit.http.Query;
 
 /**
  * Created by miccrive on 3/17/15.
@@ -20,11 +29,21 @@ import retrofit.http.Path;
 public interface SnaphuntApi {
     Converter DATA_CONVERTER = new GsonConverter(new Gson());
     String API_VERSION = "v1";
-    String API_ENDPOINT = "http://localhost:3000/api/" + API_VERSION + "/";
+    // 10.0.2.2 is this machine localhost http://developer.android.com/tools/devices/emulator.html#networkaddresses
+    String API_ENDPOINT = "http://10.0.2.2:3000/api/" + API_VERSION + "/";
     String AUTH_HEADER = Constants.AUTH_HEADER;
 
     // User
     @GET("/users")
-    List<User> listUsers();
+    void listUsers(Callback<List<User>> users);
 
+    @POST("/users")
+    void registerUser(@Body User user, Callback<User> cb);
+
+    @POST("/login")
+    void loginUser(@Query("username") String username, @Query("password") String password, Callback<User> user);
+
+    // Using Callback<Response> since it didn't like empty Callback()
+    @PUT("/gcmregid")
+    void updateGcmRegId(@Header("Authorization") String gcmRegId, Callback<Response> cb);
 }

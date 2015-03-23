@@ -53,7 +53,8 @@
         android:layout_alignLeft="@+id/register_password"
         android:layout_alignStart="@+id/register_password"
         android:layout_alignRight="@+id/register_password"
-        android:layout_alignEnd="@+id/register_password" />
+        android:layout_alignEnd="@+id/register_password"
+        android:onClick="onRegisterSubmit"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -76,5 +77,6 @@
         android:layout_alignLeft="@+id/register_username"
         android:layout_alignStart="@+id/register_username"
         android:hint="@string/email_hint"
-        android:imeOptions="flagNoExtractUi"/>
+        android:imeOptions="flagNoExtractUi"
+        />
 </RelativeLayout>

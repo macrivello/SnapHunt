@@ -21,12 +21,15 @@ public class Constants {
     public static final String PROPERTY_REG_ID = "registration_id";
     public static final String PROPERTY_APP_VERSION = "appVersion";
     public static final String GOOGLE_APP_PROJECT_NUMBER = "836468531122";
+    public static final String GCM_INTENT_TASK = "gcm_intent_task";
+    public static final int GCM_REGISTER = 1;
+    public static final int GCM_UNREGISTER = 2;
+
 
     // API
     public static final String AUTH_HEADER = "x-auth-token";
     public static final String GCM_HEADER = "gcm-reg-id";
     public static final String HTTP_CONTENT_TYPE_JSON = "application/json";
-
 
 
 }

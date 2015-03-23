@@ -20,6 +20,8 @@ import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.auth.CognitoCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3Client;
 
+import roboguice.util.Ln;
+
 /* 
  * This class just handles getting the client since we don't need to have more than
  * one per application
@@ -35,15 +37,6 @@ public class S3Util {
                     Constants.COGNITO_POOL_ID,    /* Identity Pool ID */
                     Constants.AWS_REGION           /* Region */
             );
-
-//            sCredProvider = new CognitoCachingCredentialsProvider(
-//                    context, // get the context for the current activity
-//                    Constants.AWS_ACCOUNT_ID, // your AWS Account id
-//                    Constants.COGNITO_POOL_ID, // your identity pool id
-//                    Constants.COGNITO_ROLE_UNAUTH,// an authenticated role ARN
-//                    Constants.COGNITO_ROLE_AUTH, // an unauthenticated role ARN
-//                    Constants.AWS_REGION //Region
-//            );
 
             sCredProvider.refresh();
         }

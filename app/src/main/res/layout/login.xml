@@ -54,7 +54,9 @@
         android:layout_alignLeft="@+id/login_password"
         android:layout_alignStart="@+id/login_password"
         android:layout_alignRight="@+id/login_password"
-        android:layout_alignEnd="@+id/login_password" />
+        android:layout_alignEnd="@+id/login_password"
+        android:onClick="onLoginSubmit"
+    />
 
     <TextView
         android:layout_width="wrap_content"

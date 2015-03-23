@@ -1,3 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+       <!-- Global Strings -->
     <string name="app_name">Snaphunt</string>
+    <string name="server_root"></string>
+
+    <!-- Account Authenticator -->
+    <string name="authenticator_account_type">Snaphunt</string>
+
+    <!-- Login Activity Strings -->
+    <string name="login_button">Login</string>
+    <string name="login_title">Login</string>
+    <string name="register_button">Create Account</string>
+    <string name="facebook_login">Login with Facebook</string>
+    <string name="facebook_register">Sign up through Facebook</string>
+    <string name="forget_password">Forgot your password?</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="username_hint">Username</string>
+    <string name="register_title">Register</string>
+    <string name="valid_email">Invalid Email Format.</string>
+    <string name="valid_password">Password [8-30 length] must contain at least 1 digit, 1 uppercase, and 1 lowercase letter. No spaces.</string>
+    <string name="valid_username">Username [3-20 length] must only contain letters, digits, hyphen, and underscores.</string>
+    <string name="games_pager_title">Games</string>
+    <string name="invites_pager_title">Invites</string>
+
+
 </resources>

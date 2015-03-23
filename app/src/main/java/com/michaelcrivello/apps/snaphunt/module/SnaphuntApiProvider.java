@@ -18,6 +18,7 @@ public class SnaphuntApiProvider implements Provider<SnaphuntApi> {
     public SnaphuntApi get() {
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setClient(new OkClient())
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setEndpoint(SnaphuntApi.API_ENDPOINT)
                 .setConverter(SnaphuntApi.DATA_CONVERTER)
                 .setRequestInterceptor(requestInterceptor)
