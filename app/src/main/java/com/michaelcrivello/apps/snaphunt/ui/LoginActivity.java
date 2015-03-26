@@ -27,7 +27,7 @@ import roboguice.util.Ln;
 /**
  * Created by michael on 3/18/15.
  */
-public class Login extends BaseActivity {
+public class LoginActivity extends BaseActivity {
     @InjectView(R.id.login_username) EditText username;
     @InjectView (R.id.login_password) EditText password;
     @InjectView (R.id.login_submit_button) Button loginButton;

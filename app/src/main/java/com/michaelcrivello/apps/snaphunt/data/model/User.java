@@ -1,11 +1,15 @@
 package com.michaelcrivello.apps.snaphunt.data.model;
 
+import org.bson.types.ObjectId;
+
+import java.util.Date;
 import java.util.List;
 
 /**
  * Created by miccrive on 3/16/15.
  */
 public class User {
+    ObjectId id;
     String email;
     String username;
     String authToken;
@@ -15,95 +19,89 @@ public class User {
     String provider;
     String providerId;
     Object providerData;
-    List<String> games;
-    List<String> invitations;
-
-    public String getEmail() {
-        return email;
-    }
+    List<Game> games;
+    List<Game> invitations;
+    Date timeCreated;
+    Date timeLastModifed;
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-    public String getAuthToken() {
-        return authToken;
-    }
-
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
-    }
-
-    public String getGcmRegId() {
-        return gcmRegId;
     }
 
     public void setGcmRegId(String gcmRegId) {
         this.gcmRegId = gcmRegId;
     }
 
-    public String getProfilePhoto() {
-        return profilePhoto;
-    }
-
     public void setProfilePhoto(String profilePhoto) {
         this.profilePhoto = profilePhoto;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public String getProvider() {
-        return provider;
+    public ObjectId getId() {
+        return id;
     }
 
-    public void setProvider(String provider) {
-        this.provider = provider;
+    public String getEmail() {
+        return email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public String getGcmRegId() {
+        return gcmRegId;
+    }
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getProvider() {
+        return provider;
     }
 
     public String getProviderId() {
         return providerId;
     }
 
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
-    }
-
     public Object getProviderData() {
         return providerData;
     }
 
-    public void setProviderData(Object providerData) {
-        this.providerData = providerData;
-    }
-
-    public List<String> getGames() {
+    public List<Game> getGames() {
         return games;
     }
 
-    public void setGames(List<String> games) {
-        this.games = games;
-    }
-
-    public List<String> getInvitations() {
+    public List<Game> getInvitations() {
         return invitations;
     }
 
-    public void setInvitations(List<String> invitations) {
-        this.invitations = invitations;
+    public Date getTimeCreated() {
+        return timeCreated;
+    }
+
+    public Date getTimeLastModifed() {
+        return timeLastModifed;
     }
 }
 

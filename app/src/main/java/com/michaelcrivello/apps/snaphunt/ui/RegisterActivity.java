@@ -4,39 +4,29 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
-import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.util.GcmUtil;
 import com.michaelcrivello.apps.snaphunt.util.InputValidator;
-import com.michaelcrivello.apps.snaphunt.util.UserManager;
-
-import org.apache.commons.lang.Validate;
 
 import java.util.regex.Pattern;
-
-import javax.xml.validation.Validator;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
 /**
  * Created by michael on 3/18/15.
  */
-public class Register extends BaseActivity {
+public class RegisterActivity extends BaseActivity {
     @InjectView (R.id.register_email) EditText emailText;
     @InjectView (R.id.register_username) EditText usernameText;
     @InjectView (R.id.register_password) EditText passwordText;
@@ -123,7 +113,7 @@ public class Register extends BaseActivity {
                     @Override
                     public void failure(RetrofitError error) {
                         Ln.e("Error Registering.", error);
-                        Toast.makeText(Register.this, "Error Registering.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegisterActivity.this, "Error Registering.", Toast.LENGTH_LONG).show();
                     }
                 });
     }

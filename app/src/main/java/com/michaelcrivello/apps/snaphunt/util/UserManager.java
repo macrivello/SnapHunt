@@ -54,13 +54,14 @@ public class UserManager {
     }
 
     public void updateUserGcmId(final String gcmRegId){
-        snaphuntApi.updateGcmRegId(gcmRegId, new Callback<Response>() {
+        User tmpUser = new User();
+        tmpUser.setGcmRegId(gcmRegId);
+
+        snaphuntApi.updateUser(tmpUser, user.getId().toHexString(), new Callback<User>() {
             @Override
-            public void success(Response response, Response response2) {
-                if (response.getStatus() == 200) {
-                    Ln.d("User's GcmRegId updated");
-                    user.setGcmRegId(gcmRegId);
-                }
+            public void success(User user, Response response) {
+                Ln.d("User's GcmRegId updated");
+                user.setGcmRegId(gcmRegId);
             }
 
             @Override

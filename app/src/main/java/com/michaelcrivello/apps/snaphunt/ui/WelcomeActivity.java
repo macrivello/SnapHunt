@@ -5,16 +5,11 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.michaelcrivello.apps.snaphunt.R;
-import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
-import com.michaelcrivello.apps.snaphunt.service.S3TransferService;
-
-import roboguice.activity.RoboActivity;
-import roboguice.util.Ln;
 
 /**
  * Created by michael on 3/18/15.
  */
-public class Welcome extends BaseActivity {
+public class WelcomeActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,11 +18,11 @@ public class Welcome extends BaseActivity {
     }
 
     public void onLogin(View v) {
-        startActivity(new Intent(this, Login.class));
+        startActivity(new Intent(this, LoginActivity.class));
         overridePendingTransition(0, 0);
     }
     public void onRegister(View v){
-        startActivity(new Intent(this, Register.class));
+        startActivity(new Intent(this, RegisterActivity.class));
         overridePendingTransition(0, 0);
     }
 }

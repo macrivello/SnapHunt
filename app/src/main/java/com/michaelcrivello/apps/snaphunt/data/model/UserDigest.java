@@ -1,34 +1,25 @@
 package com.michaelcrivello.apps.snaphunt.data.model;
 
+import org.bson.types.ObjectId;
+
 /**
  * Created by michael on 3/22/15.
  */
 public class UserDigest {
+    ObjectId id;
     String username;
-    String id;
+    ObjectId userId;
     Photo profilePhoto;
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public Object getUserId() {
+        return userId;
     }
 
     public Photo getProfilePhoto() {
         return profilePhoto;
-    }
-
-    public void setProfilePhoto(Photo profilePhoto) {
-        this.profilePhoto = profilePhoto;
     }
 }

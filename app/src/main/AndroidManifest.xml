@@ -32,9 +32,9 @@
 
         // Activities
         <activity android:name=".ui.SampleActivity"/>
-        <activity android:name=".ui.Login"/>
-        <activity android:name=".ui.Register"/>
-        <activity android:name=".ui.Welcome">
+        <activity android:name=".ui.LoginActivity"/>
+        <activity android:name=".ui.RegisterActivity"/>
+        <activity android:name=".ui.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
