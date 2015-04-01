@@ -18,7 +18,6 @@ public class Photo {
     String hashThumb;
     Theme theme;
     Date timeCreated;
-    Date timeLastModified;
 
     public ObjectId getId() {
         return id;
@@ -58,9 +57,5 @@ public class Photo {
 
     public Date getTimeCreated() {
         return timeCreated;
-    }
-
-    public Date getTimeLastModified() {
-        return timeLastModified;
     }
 }

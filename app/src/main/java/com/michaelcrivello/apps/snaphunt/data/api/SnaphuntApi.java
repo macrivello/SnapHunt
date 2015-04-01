@@ -47,8 +47,11 @@ public interface SnaphuntApi {
     @POST("/login")
     void loginUser(@Query("username") String username, @Query("password") String password, Callback<User> user);
 
-    // Using Callback<Response> since it didn't like empty Callback()
-    //TODO: This has changed to a user PUT call.
-    @PUT("/gcmregid")
-    void updateGcmRegId(@Header("Authorization") String gcmRegId, Callback<Response> cb);
+    // Game
+
+    // Round
+
+    // Photo
+
+    // Theme
 }
