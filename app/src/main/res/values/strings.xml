@@ -24,6 +24,7 @@
     <string name="valid_username">Username [3-20 length] must only contain letters, digits, hyphen, and underscores.</string>
     <string name="games_pager_title">Games</string>
     <string name="invites_pager_title">Invites</string>
+    <string name="logout">Logout</string>
 
 
 </resources>

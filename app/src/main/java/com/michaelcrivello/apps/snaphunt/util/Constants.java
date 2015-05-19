@@ -25,11 +25,15 @@ public class Constants {
     public static final int GCM_REGISTER = 1;
     public static final int GCM_UNREGISTER = 2;
 
-
     // API
     public static final String AUTH_HEADER = "x-auth-token";
     public static final String GCM_HEADER = "gcm-reg-id";
     public static final String HTTP_CONTENT_TYPE_JSON = "application/json";
+
+    // SharedPrefs
+    public static final String SHARED_PREFS = "SNAPHUNT_DATA";
+    public static final String USER_ID_KEY = "SNAPHUNT_USER_ID_KEY";
+    public static final String USER_TOKEN_KEY = "SNAPHUNT_USER_TOKEN_KEY";
 
 
 }

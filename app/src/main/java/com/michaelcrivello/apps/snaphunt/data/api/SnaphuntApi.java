@@ -38,6 +38,9 @@ public interface SnaphuntApi {
     @GET("/users")
     void listUsers(Callback<List<User>> users);
 
+    @GET("/users/{userId}")
+    void getUser(@Path("userId") String userId, Callback<User> cb);
+
     @PUT("/users/{userId}")
     void updateUser(@Body User user, @Path("userId") String userId, Callback<User> cb);
 

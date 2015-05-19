@@ -9,7 +9,7 @@ import java.util.List;
  * Created by miccrive on 3/16/15.
  */
 public class User {
-    ObjectId id;
+    ObjectId _id;
     String email;
     String username;
     String authToken;
@@ -49,7 +49,7 @@ public class User {
     }
 
     public ObjectId getId() {
-        return id;
+        return _id;
     }
 
     public String getEmail() {

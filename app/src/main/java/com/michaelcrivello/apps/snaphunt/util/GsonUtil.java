@@ -43,14 +43,21 @@ public class GsonUtil {
         @Override
         public ObjectId deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
         {
+            ObjectId objectId = null;
             try
             {
-                return new ObjectId(json.getAsJsonObject().get("$oid").getAsString());
+                if(json.isJsonObject()){
+                    objectId = new ObjectId(json.getAsJsonObject().get("$oid").getAsString());
+                } else if (json.isJsonPrimitive()){
+                    objectId = new ObjectId(json.getAsJsonPrimitive().getAsString());
+                }
+                return objectId;
             }
             catch (Exception e)
             {
-                return null;
+                objectId = null;
             }
+            return objectId;
         }
     }
 
@@ -83,7 +90,12 @@ public class GsonUtil {
             SimpleDateFormat f2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             try
             {
-                d = f2.parse(json.getAsJsonObject().get("$date").getAsString());
+                if(json.isJsonObject()){
+                    d = f2.parse(json.getAsJsonObject().get("$date").getAsString());
+
+                } else if (json.isJsonPrimitive()){
+                    d = f2.parse(json.getAsJsonPrimitive().getAsString());
+                }
             }
             catch (ParseException e)
             {

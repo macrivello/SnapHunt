@@ -70,10 +70,19 @@ public class SampleActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.sample_photo_upload_activity);
         if (userManager.getUser() != null) {
             welcomeText.setText("Welcome " + userManager.getUser().getUsername() + ".");
+        } else {
+            logout(null);
         }
+    }
+
+    public void logout(View v) {
+        userManager.clearUser();
+        startActivity(new Intent(this, WelcomeActivity.class));
+        overridePendingTransition(0, 0);
     }
 
     /*

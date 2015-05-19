@@ -2,7 +2,9 @@ package com.michaelcrivello.apps.snaphunt.ui;
 
 import android.os.Bundle;
 
+import com.google.android.gms.common.api.Api;
 import com.google.inject.Inject;
+import com.michaelcrivello.apps.snaphunt.data.api.ApiHeaders;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
 import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
 import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
@@ -19,6 +21,7 @@ import roboguice.util.Ln;
  */
 public class BaseActivity extends RoboActivity{
     @Inject SnaphuntApi snaphuntApi;
+    @Inject ApiHeaders apiHeaders;
     @Inject Bus bus;
     @Inject UserManager userManager;
     BaseActivityBusListener listener;

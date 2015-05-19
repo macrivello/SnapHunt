@@ -1,5 +1,8 @@
 package com.michaelcrivello.apps.snaphunt.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
@@ -19,6 +22,8 @@ import roboguice.util.Ln;
     It should be a singleton and be injectable. This will allow easier use of
     binding to mock user for testing.
  */
+
+// TODO: Subscribe to Login, Logout events
 @Singleton
 public class UserManager {
     @Inject ApiHeaders apiHeaders;
@@ -27,13 +32,27 @@ public class UserManager {
 
     User user;
 
+    //TODO: Save in SharedPrefs
     public void setUser(User user) {
         Ln.d("Setting new logged in User");
         this.user = user;
         apiHeaders.setAuthToken(user.getAuthToken());
 
+        storeUser(user);
+
         bus.post(new UserLogin(user));
         checkGcmRegId();
+    }
+
+    //Store User in SharedPreferences
+    private void storeUser(User user) {
+        if (user != null) {
+            Ln.d("Storing user in sharedPrefs", user.getId(), user.getAuthToken());
+            SharedPrefsUtil.sharedPreferences.edit()
+                    .putString(Constants.USER_ID_KEY, user.getId().toHexString())
+                    .putString(Constants.USER_TOKEN_KEY, user.getAuthToken())
+                    .apply();
+        }
     }
 
     private void checkGcmRegId() {
@@ -57,17 +76,29 @@ public class UserManager {
         User tmpUser = new User();
         tmpUser.setGcmRegId(gcmRegId);
 
-        snaphuntApi.updateUser(tmpUser, user.getId().toHexString(), new Callback<User>() {
-            @Override
-            public void success(User user, Response response) {
-                Ln.d("User's GcmRegId updated");
-                user.setGcmRegId(gcmRegId);
-            }
+        try{
+            snaphuntApi.updateUser(tmpUser, user.getId().toHexString(), new Callback<User>() {
+                @Override
+                public void success(User user, Response response) {
+                    Ln.d("User's GcmRegId updated");
+                    user.setGcmRegId(gcmRegId);
+                }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Ln.e(error);
-            }
-        });
+                @Override
+                public void failure(RetrofitError error) {
+                    Ln.e(error);
+                }
+            });
+        }catch (Exception e){
+            Ln.e("Error updating user.", e);
+        }
+
+    }
+
+    // TODO: Make sure any pending changes are saved
+    public void clearUser() {
+        user = null;
+
+        SharedPrefsUtil.sharedPreferences.edit().clear().apply();
     }
 }
