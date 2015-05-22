@@ -35,5 +35,6 @@ public class Constants {
     public static final String USER_ID_KEY = "SNAPHUNT_USER_ID_KEY";
     public static final String USER_TOKEN_KEY = "SNAPHUNT_USER_TOKEN_KEY";
 
-
+    // Intent Bundle Keys
+    public static final String GAME_ID_KEY = "GAME_ID_KEY";
 }

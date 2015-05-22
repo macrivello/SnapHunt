@@ -3,9 +3,11 @@ package com.michaelcrivello.apps.snaphunt.data.api;
 import android.graphics.Bitmap;
 
 import com.google.gson.Gson;
+import com.michaelcrivello.apps.snaphunt.data.model.Game;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.util.GsonUtil;
+import com.squareup.okhttp.Call;
 
 import java.util.List;
 
@@ -50,11 +52,19 @@ public interface SnaphuntApi {
     @POST("/login")
     void loginUser(@Query("username") String username, @Query("password") String password, Callback<User> user);
 
+    // UserDigest
+
     // Game
+    @GET("/games")
+    void getGames(Callback<List<Game>> games);
+
+    @GET("/games/{gameId}")
+    void getGame(@Path("gameId") String gameId, Callback<Game> cb);
 
     // Round
 
     // Photo
 
     // Theme
+    // TODO: Need to be able to pass arbitrary number of themes
 }

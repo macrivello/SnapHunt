@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/darker_gray">
+
+    <TextView
+        android:id="@+id/themeSelectorHeadingText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/theme_selector_heading"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/black"
+        android:textColor="@android:color/white"/>
+
+    <LinearLayout
+        android:id="@+id/themeSelectorButtonContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/themeSelectorHeadingText"
+        android:padding="3dp"
+        android:layout_centerInParent="true"
+        android:gravity="center">
+
+
+    </LinearLayout>
+
+</RelativeLayout>

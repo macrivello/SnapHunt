@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by miccrive on 3/16/15.
+ * User model. Base object that represents a user of Snaphunt.
  */
 public class User {
     ObjectId _id;
@@ -19,10 +19,12 @@ public class User {
     String provider;
     String providerId;
     Object providerData;
-    List<Game> games;
-    List<Game> invitations;
+    List<ObjectId> games;
+    List<ObjectId> invitations;
     Date timeCreated;
     Date timeLastModifed;
+
+
 
     public void setEmail(String email) {
         this.email = email;
@@ -88,11 +90,11 @@ public class User {
         return providerData;
     }
 
-    public List<Game> getGames() {
+    public List<ObjectId> getGames() {
         return games;
     }
 
-    public List<Game> getInvitations() {
+    public List<ObjectId> getInvitations() {
         return invitations;
     }
 

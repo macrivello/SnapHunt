@@ -67,7 +67,7 @@ public class LoginActivity extends BaseActivity {
                         Ln.d("Login successful", user, response);
                         // Save user
                         userManager.setUser(user);
-                        startActivity(new Intent(SnaphuntApp.getInstance(), SampleActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
+                        startActivity(new Intent(SnaphuntApp.getInstance(), HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
                     }
 
                     @Override

@@ -53,7 +53,7 @@ public class WelcomeActivity extends BaseActivity {
     // Loads Home Screen
     // TODO: change activity
     private void loadHomeScreen() {
-        startActivity(new Intent(this, SampleActivity.class)
+        startActivity(new Intent(this, HomeActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                         Intent.FLAG_ACTIVITY_CLEAR_TASK));
         overridePendingTransition(0, 0);

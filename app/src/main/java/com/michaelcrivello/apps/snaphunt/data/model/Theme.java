@@ -14,4 +14,28 @@ public class Theme {
     int likes;
     int dislikes;
     int neutrals;
+
+    public ObjectId getId() {
+        return id;
+    }
+
+    public String getPhrase() {
+        return phrase;
+    }
+
+    public int getPlays() {
+        return plays;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public int getDislikes() {
+        return dislikes;
+    }
+
+    public int getNeutrals() {
+        return neutrals;
+    }
 }

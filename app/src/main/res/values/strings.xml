@@ -25,6 +25,9 @@
     <string name="games_pager_title">Games</string>
     <string name="invites_pager_title">Invites</string>
     <string name="logout">Logout</string>
+    <string name="home">Home</string>
+    <string name="new_game">New Game</string>
+    <string name="theme_selector_heading">You\'re the Judge! \\n Pick the theme:</string>
 
 
 </resources>

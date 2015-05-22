@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.michaelcrivello.apps.snaphunt"
-        minSdkVersion 18
+        minSdkVersion 21
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
@@ -60,4 +60,9 @@ dependencies {
     compile 'com.google.android.gms:play-services-base:6.5.87'
     compile 'com.android.support:multidex:1.0.0'
     compile 'org.mongodb:bson:3.0.0-rc0'
+
+    compile 'com.netflix.rxjava:rxjava-core:0.16.1'
+    compile 'com.netflix.rxjava:rxjava-android:0.16.1'
+
+    compile 'com.etsy.android.grid:library:1.0.3'
 }

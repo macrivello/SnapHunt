@@ -75,14 +75,12 @@ public class SampleActivity extends BaseActivity {
         if (userManager.getUser() != null) {
             welcomeText.setText("Welcome " + userManager.getUser().getUsername() + ".");
         } else {
-            logout(null);
+            logout();
         }
     }
 
     public void logout(View v) {
-        userManager.clearUser();
-        startActivity(new Intent(this, WelcomeActivity.class));
-        overridePendingTransition(0, 0);
+        logout();
     }
 
     /*
