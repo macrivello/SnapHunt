@@ -28,6 +28,7 @@
     <string name="home">Home</string>
     <string name="new_game">New Game</string>
     <string name="theme_selector_heading">You\'re the Judge! \\n Pick the theme:</string>
+    <string name="empty_game_list">You have no games.</string>
 
 
 </resources>

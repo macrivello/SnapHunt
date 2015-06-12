@@ -79,9 +79,6 @@ public class SampleActivity extends BaseActivity {
         }
     }
 
-    public void logout(View v) {
-        logout();
-    }
 
     /*
         Click handlers for buttons
@@ -91,10 +88,6 @@ public class SampleActivity extends BaseActivity {
 
         // Upload progress is returned as S3TransferProgress event
         bus.post(new RoundPhotoUpload(selectedPhotoFile));
-
-        //TESTING RETROFIT
-//        List<User> users = snaphuntApi.listUsers();
-//        Ln.d(users);
     }
 
     public void selectPhoto(View v) {
@@ -104,6 +97,11 @@ public class SampleActivity extends BaseActivity {
     public void takePhoto(View v) {
         launchCamera();
     }
+
+    public void logout(View v) {
+        logout();
+    }
+
 
     private void launchCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

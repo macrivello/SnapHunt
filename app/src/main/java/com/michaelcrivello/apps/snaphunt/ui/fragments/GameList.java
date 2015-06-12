@@ -39,6 +39,7 @@ public class GameList extends BaseFragment {
     @Inject SnaphuntApi snaphuntApi;
     ListView gamesListView;
     GameListAdapter gameListAdapter;
+    ViewGroup emptyListOverlay;
 
     protected static final String TITLE = "Games";
 
@@ -53,6 +54,7 @@ public class GameList extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v =inflater.inflate(R.layout.games_list,container,false);
         gamesListView = (ListView) v.findViewById(R.id.games_list_view);
+        emptyListOverlay = (ViewGroup) v.findViewById(R.id.empty_list_overlay);
         return v;
     }
 
@@ -88,14 +90,23 @@ public class GameList extends BaseFragment {
             @Override
             public void success(List<Game> games, Response response) {
                 Ln.d("Loading %d games into list.", games.size());
-                gameListAdapter.setGames(games);
+                if (games.size() == 0) {
+                    showEmptyListOverlay(true);
+                } else {
+                    showEmptyListOverlay(false);
+                    gameListAdapter.setGames(games);
+                }
             }
 
             @Override
             public void failure(RetrofitError error) {
-                Ln.e("Error loading list of games.", error.getUrl(), error.getResponse(), error.getBody());
+                Ln.e("Error loading list of games. " + error.getUrl() +  error.getResponse() + error.getBody());
             }
         });
+    }
+
+    private void showEmptyListOverlay(boolean show) {
+        emptyListOverlay.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
 

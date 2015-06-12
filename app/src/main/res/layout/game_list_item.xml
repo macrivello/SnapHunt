@@ -26,7 +26,14 @@
         <TextView
             android:id="@+id/gameStatusText"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/abc_text_size_small_material"
+            android:textColor="@color/ColorPrimaryDark"/>
+
+        <TextView
+            android:id="@+id/gamePlayersText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:textSize="@dimen/abc_text_size_small_material"
             android:textColor="@color/ColorPrimaryDark"/>
 

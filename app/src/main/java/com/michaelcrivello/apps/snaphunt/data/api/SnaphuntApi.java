@@ -61,6 +61,12 @@ public interface SnaphuntApi {
     @GET("/games/{gameId}")
     void getGame(@Path("gameId") String gameId, Callback<Game> cb);
 
+    @GET("/invites")
+    void getInvites(Callback<List<Game>> callback);
+
+    @GET("/invites/{gameId}")
+    void getInvite(@Path("gameId") String gameId, Callback<List<Game>> callback);
+
     // Round
 
     // Photo

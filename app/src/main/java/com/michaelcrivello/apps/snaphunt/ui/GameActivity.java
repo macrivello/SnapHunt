@@ -28,7 +28,7 @@ import roboguice.util.Ln;
 /**
  * Created by michael on 3/24/15.
  */
-public class GameActivity extends BaseActivity implements ThemeSelection{
+public class GameActivity extends BaseActivity implements ThemeSelection {
     protected Game game;
     protected Round currentRound;
     protected User currentJudge;

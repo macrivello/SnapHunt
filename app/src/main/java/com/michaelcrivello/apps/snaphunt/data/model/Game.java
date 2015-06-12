@@ -15,9 +15,9 @@ public class Game {
     int roundTimeLimit;
     int numberOfRounds;
     int currentRound;
-    //TODO: currently Object Ids in model schema
     List<Round> rounds;
-    List<UserDigest> players; // players will be UserDigests
+    // Setting players as ObjectIds temporarily since mongoose deep populate is not populating user.games.players
+    List<ObjectId> players;
     Date timeCreated;
     Date timeLastModified;
     Date timeEnded;
@@ -44,7 +44,7 @@ public class Game {
         return rounds;
     }
 
-    public List<UserDigest> getPlayers() {
+    public List<ObjectId> getPlayers() {
         return players;
     }
 
