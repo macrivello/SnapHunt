@@ -82,7 +82,7 @@ public class InviteList extends BaseFragment {
         snaphuntApi.getInvites(new Callback<List<Game>>() {
             @Override
             public void success(List<Game> games, Response response) {
-                Ln.d("Loading %d game invites into list.", games.size());
+                Ln.d("Loading %d game_activity invites into list.", games.size());
                 if (games.size() == 0) {
                     showEmptyListOverlay(true);
                 } else {

@@ -11,7 +11,7 @@ import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import roboguice.util.Ln;
 
 /**
- * tile view for game screen that shows current round info
+ * tile view for game_activity screen that shows current round info
  */
 public class RoundInfoTileView extends RelativeLayout {
     int roundNumber;

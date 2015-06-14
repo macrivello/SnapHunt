@@ -29,6 +29,8 @@
     <string name="new_game">New Game</string>
     <string name="theme_selector_heading">You\'re the Judge! \\n Pick the theme:</string>
     <string name="empty_game_list">You have no games.</string>
+    <string name="submit_photo">Submit Photo</string>
+    <string name="take_photo">Take Photo</string>
 
 
 </resources>

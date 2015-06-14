@@ -21,7 +21,7 @@ import java.util.List;
 import roboguice.fragment.RoboFragment;
 
 /**
- * Fragment meant to overlay the game activity for the judge to select a phrase to begin a new round.
+ * Fragment meant to overlay the game_activity activity for the judge to select a phrase to begin a new round.
  */
 public class ThemePickerOverlay extends RoboFragment {
     ThemeSelection themeSelection;

@@ -52,7 +52,7 @@ public class GameListView extends LinearLayout {
         // TODO: This will need to ethier switch back to UserDigests or make additional network requests, thus routes for users/userdigest
         List<ObjectId> users = game.getPlayers();
         if (users == null || users.size() < 1) {
-            gamePlayers.setText("No Players in this game.");
+            gamePlayers.setText("No Players in this game_activity.");
         } else {
             for (ObjectId u : users){
                 gamePlayers.append(u.toHexString());
