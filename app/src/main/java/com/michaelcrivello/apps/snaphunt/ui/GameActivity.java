@@ -1,22 +1,45 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.event.ProgressEvent;
+import com.amazonaws.event.ProgressListener;
+import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.adapter.GamePlayersAdapter;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
+import com.michaelcrivello.apps.snaphunt.data.model.Photo;
 import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.Theme;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
+import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
+import com.michaelcrivello.apps.snaphunt.event.RoundPhotoUpload;
+import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.ThemeSelection;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
+import com.pnikosis.materialishprogress.ProgressWheel;
+import com.squareup.otto.Subscribe;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import retrofit.Callback;
@@ -35,6 +58,8 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     @InjectView(R.id.gameRoundStatusText) TextView roundStatusText;
     @InjectView(R.id.gameThemeText) TextView themeText;
     @InjectView(R.id.gameRoundNumberText) TextView roundNumberText;
+    @InjectView(R.id.progress_wheel) ProgressWheel progressWheel;
+    @InjectView(R.id.photoPreview) ImageView photoPreview;
 
     protected Game game;
     protected Round currentRound;
@@ -43,6 +68,12 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     protected Theme currentTheme;
 
     protected GamePlayersAdapter gamePlayersAdapter;
+
+    // File uploading
+    private File selectedPhotoFile = null;
+    private String selectedPhotoFilePath;
+    private static final int IMAGE_SELECTED_CODE = 69;
+    private static final int REQUEST_IMAGE_CAPTURE = 70;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +114,10 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         // Setup Adapter
         gamePlayersAdapter.loadGame(game);
         playersListView.setAdapter(gamePlayersAdapter);
+
+        // Photo
+        // Disable submit button when there is no photo selected to upload
+        submitPhotoButton.setEnabled(selectedPhotoFile != null);
 
     }
 
@@ -141,11 +176,210 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         return gameId;
     }
 
+    // Open up camera to take photo
     public void onTakePhotoClick(View v) {
-        // Grab code from sample activity.
+        launchCamera();
     }
 
+    // Submit photo
    public void onSubmitPhotoClick(View v) {
-       // Submit photo
+       Ln.d("Attempting to upload file.");
+
+       // Upload progress is returned as S3TransferProgress event
+       bus.post(new RoundPhotoUpload(selectedPhotoFile));
    }
+
+    // Start ActivityfoForResult intent with MediaStore.ACTION_IMAGE_CAPTURE. Opens Camera.
+    // Stores image in file "selectedPhotoFile"
+    private void launchCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+
+            selectedPhotoFile = null;
+            try {
+                selectedPhotoFile = createImageFile();
+            } catch (IOException ex) {
+                selectedPhotoFile = null;
+                Ln.e(ex.getMessage());
+            }
+
+            if (selectedPhotoFile != null) {
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                        Uri.fromFile(selectedPhotoFile));
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = this.getExternalCacheDir();
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        selectedPhotoFilePath = "file:" + image.getAbsolutePath();
+        return image;
+    }
+
+    private void writeBitmapToFile(Bitmap bitmap, File selectedPhotoFile) throws Exception{
+        OutputStream os;
+        try {
+            os = new FileOutputStream(selectedPhotoFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            os.flush();
+            os.close();
+
+            Ln.d("posting PhotoReadyForSubmit event");
+            bus.post(new PhotoReadyForSubmit(selectedPhotoFile));
+        } catch (Exception e) {
+            Ln.e("Error writing bitmap to file");
+        }
+
+    }
+
+    @Subscribe
+    public void onPhotoReadyForSubmit(PhotoReadyForSubmit photoReadyForSubmit) {
+        File file = photoReadyForSubmit.getFile();
+        Ln.d("onPhotoReadyForSubmit. can read: " + file.canRead() + " path: " + file.getAbsolutePath());
+        submitPhotoButton.setEnabled(file.canRead());
+    }
+
+    @Subscribe
+    public void onS3Upload(S3UploadUpload s3UploadUpload) {
+        Ln.d("onS3Upload");
+        Upload upload = s3UploadUpload.getUpload();
+        File file = s3UploadUpload.getUploadedFile();
+
+
+        upload.addProgressListener(new S3UploadProgressListener(upload, file));
+    }
+
+    private class S3UploadProgressListener implements ProgressListener {
+        protected Upload upload;
+        protected File file;
+
+        public S3UploadProgressListener(Upload upload, File file) {
+            this.upload = upload;
+            this.file = file;
+        }
+
+        @Override
+        public void progressChanged(final ProgressEvent progressEvent) {
+            if (upload == null) return;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    int percentTransfered = ((int)upload.getProgress().getPercentTransferred());
+                    if (percentTransfered > 0){
+                        if (progressWheel.getVisibility() == View.INVISIBLE) {
+                            progressWheel.setVisibility(View.VISIBLE);
+                        }
+                        progressWheel.setProgress(percentTransfered);
+                    }
+
+                    switch (progressEvent.getEventCode()) {
+                        case ProgressEvent.COMPLETED_EVENT_CODE:
+                            Ln.d("Upload Complete: " + upload.getDescription());
+                            progressWheel.setProgress(100);
+//                            uploadUrlText.setText(upload.getDescription());
+                            file.delete();
+                            break;
+                        case ProgressEvent.FAILED_EVENT_CODE:
+                            try {
+                                AmazonClientException e = upload.waitForException();
+                                Ln.e("Unable to upload file to Amazon S3: " + e.getMessage());
+                            } catch (InterruptedException e) {
+                                Ln.e(e.getMessage());
+                            }
+                            break;
+                        case ProgressEvent.STARTED_EVENT_CODE:
+                            Ln.d("Upload Started: " + upload.getDescription());
+                            Toast.makeText(getBaseContext(), "Upload starting for: " + upload.getDescription(), Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                }
+            });
+        }
+    }
+
+
+    private void launchGalleryImageSelector() {
+        Intent i = new Intent();
+        i.setType("image/*");
+        i.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(i, "Select Photo"), IMAGE_SELECTED_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Ln.d("onActivityResult");
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case IMAGE_SELECTED_CODE:
+                if (resultCode != RESULT_OK || data.getData() == null) {
+                    Ln.d("No image selected");
+                    return;
+                }
+
+                handleImageSelected(data);
+                break;
+            case REQUEST_IMAGE_CAPTURE:
+                if (resultCode != RESULT_OK) {
+                    Ln.d("No photo taken");
+                    return;
+                }
+
+                handleCameraResult(data);
+                break;
+        }
+    }
+
+    private void handleCameraResult(Intent data) {
+        if (selectedPhotoFile != null) {
+
+            Bitmap bitmap = BitmapFactory.decodeFile(selectedPhotoFile.getAbsolutePath());
+            photoPreview.setImageBitmap(bitmap);
+
+            Ln.d("posting PhotoReadyForSubmit event");
+            bus.post(new PhotoReadyForSubmit(selectedPhotoFile));
+//            selectedPhotoText.setText("Selected Photo: " + selectedPhotoFile.getName());
+        }
+
+    }
+
+    private void handleImageSelected(Intent data) {
+        selectedPhotoFile = null;
+
+        Uri imageUri = data.getData();
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (bitmap != null) {
+//            selectedPhotoText.setText("Selected Photo: " + imageUri.getPath());
+            photoPreview.setImageBitmap(bitmap);
+
+
+            selectedPhotoFile = null;
+            try {
+                selectedPhotoFile = createImageFile();
+                writeBitmapToFile(bitmap, selectedPhotoFile);
+            } catch (Exception e) {
+                selectedPhotoFile = null;
+                e.printStackTrace();
+                Ln.e(e.getMessage());
+            }
+        }
+    }
 }
