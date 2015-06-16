@@ -1,5 +1,6 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
+import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,6 +27,8 @@ import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.Theme;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
+import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
+import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
 import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
 import com.michaelcrivello.apps.snaphunt.event.RoundPhotoUpload;
 import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
@@ -52,14 +55,24 @@ import roboguice.util.Ln;
  * Created by michael on 3/24/15.
  */
 public class GameActivity extends BaseActivity implements ThemeSelection {
-    @InjectView(R.id.gameOpenCameraButton) Button takePhotoButton;
-    @InjectView(R.id.gameSubmitPhotoButton) Button submitPhotoButton;
-    @InjectView(R.id.gamePlayersListView) ListView playersListView;
-    @InjectView(R.id.gameRoundStatusText) TextView roundStatusText;
-    @InjectView(R.id.gameThemeText) TextView themeText;
-    @InjectView(R.id.gameRoundNumberText) TextView roundNumberText;
-    @InjectView(R.id.progress_wheel) ProgressWheel progressWheel;
-    @InjectView(R.id.photoPreview) ImageView photoPreview;
+    @InjectView(R.id.gameOpenCameraButton)
+    Button takePhotoButton;
+    @InjectView(R.id.gameSubmitPhotoButton)
+    Button submitPhotoButton;
+    @InjectView(R.id.gamePlayersListView)
+    ListView playersListView;
+    @InjectView(R.id.gameRoundStatusText)
+    TextView roundStatusText;
+    @InjectView(R.id.gameThemeText)
+    TextView themeText;
+    @InjectView(R.id.gameRoundNumberText)
+    TextView roundNumberText;
+    @InjectView(R.id.progress_wheel)
+    ProgressWheel progressWheel;
+    @InjectView(R.id.photoPreview)
+    ImageView photoPreview;
+    @InjectView(R.id.photoUrl)
+    TextView photoUrl;
 
     protected Game game;
     protected Round currentRound;
@@ -68,6 +81,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     protected Theme currentTheme;
 
     protected GamePlayersAdapter gamePlayersAdapter;
+    protected GameEventListener gameEventListener;
 
     // File uploading
     private File selectedPhotoFile = null;
@@ -83,6 +97,47 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         getGameData(getGameIdFromIntent());
 
         gamePlayersAdapter = new GamePlayersAdapter(this);
+        gameEventListener = new GameEventListener();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Ln.d("onStart");
+//        bus.register(gameEventListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Ln.d("onPause");
+        bus.unregister(gameEventListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Ln.d("onResume");
+        bus.register(gameEventListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Ln.d("onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Ln.d("onDestroy");
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Ln.d("onRestart");
     }
 
     private void loadGameData(Game game) {
@@ -156,7 +211,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     }
 
 
-
     //TODO refactor, too verbose
     public String getGameIdFromIntent() {
         String gameId = null;
@@ -176,18 +230,23 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         return gameId;
     }
 
+    // Open Gallery to select photo
+    public void selectPhoto(View v) {
+        launchGalleryImageSelector();
+    }
+
     // Open up camera to take photo
     public void onTakePhotoClick(View v) {
         launchCamera();
     }
 
     // Submit photo
-   public void onSubmitPhotoClick(View v) {
-       Ln.d("Attempting to upload file.");
+    public void onSubmitPhotoClick(View v) {
+        Ln.d("Attempting to upload file.");
 
-       // Upload progress is returned as S3TransferProgress event
-       bus.post(new RoundPhotoUpload(selectedPhotoFile));
-   }
+        // Upload progress is returned as S3TransferProgress event
+        bus.post(new RoundPhotoUpload(selectedPhotoFile));
+    }
 
     // Start ActivityfoForResult intent with MediaStore.ACTION_IMAGE_CAPTURE. Opens Camera.
     // Stores image in file "selectedPhotoFile"
@@ -227,7 +286,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         return image;
     }
 
-    private void writeBitmapToFile(Bitmap bitmap, File selectedPhotoFile) throws Exception{
+    private void writeBitmapToFile(Bitmap bitmap, File selectedPhotoFile) throws Exception {
         OutputStream os;
         try {
             os = new FileOutputStream(selectedPhotoFile);
@@ -243,73 +302,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
     }
 
-    @Subscribe
-    public void onPhotoReadyForSubmit(PhotoReadyForSubmit photoReadyForSubmit) {
-        File file = photoReadyForSubmit.getFile();
-        Ln.d("onPhotoReadyForSubmit. can read: " + file.canRead() + " path: " + file.getAbsolutePath());
-        submitPhotoButton.setEnabled(file.canRead());
-    }
-
-    @Subscribe
-    public void onS3Upload(S3UploadUpload s3UploadUpload) {
-        Ln.d("onS3Upload");
-        Upload upload = s3UploadUpload.getUpload();
-        File file = s3UploadUpload.getUploadedFile();
-
-
-        upload.addProgressListener(new S3UploadProgressListener(upload, file));
-    }
-
-    private class S3UploadProgressListener implements ProgressListener {
-        protected Upload upload;
-        protected File file;
-
-        public S3UploadProgressListener(Upload upload, File file) {
-            this.upload = upload;
-            this.file = file;
-        }
-
-        @Override
-        public void progressChanged(final ProgressEvent progressEvent) {
-            if (upload == null) return;
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    int percentTransfered = ((int)upload.getProgress().getPercentTransferred());
-                    if (percentTransfered > 0){
-                        if (progressWheel.getVisibility() == View.INVISIBLE) {
-                            progressWheel.setVisibility(View.VISIBLE);
-                        }
-                        progressWheel.setProgress(percentTransfered);
-                    }
-
-                    switch (progressEvent.getEventCode()) {
-                        case ProgressEvent.COMPLETED_EVENT_CODE:
-                            Ln.d("Upload Complete: " + upload.getDescription());
-                            progressWheel.setProgress(100);
-//                            uploadUrlText.setText(upload.getDescription());
-                            file.delete();
-                            break;
-                        case ProgressEvent.FAILED_EVENT_CODE:
-                            try {
-                                AmazonClientException e = upload.waitForException();
-                                Ln.e("Unable to upload file to Amazon S3: " + e.getMessage());
-                            } catch (InterruptedException e) {
-                                Ln.e(e.getMessage());
-                            }
-                            break;
-                        case ProgressEvent.STARTED_EVENT_CODE:
-                            Ln.d("Upload Started: " + upload.getDescription());
-                            Toast.makeText(getBaseContext(), "Upload starting for: " + upload.getDescription(), Toast.LENGTH_LONG).show();
-                            break;
-                    }
-                }
-            });
-        }
-    }
-
-
     private void launchGalleryImageSelector() {
         Intent i = new Intent();
         i.setType("image/*");
@@ -321,6 +313,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Ln.d("onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
+        bus.register(gameEventListener);
 
         switch (requestCode) {
             case IMAGE_SELECTED_CODE:
@@ -346,11 +339,11 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         if (selectedPhotoFile != null) {
 
             Bitmap bitmap = BitmapFactory.decodeFile(selectedPhotoFile.getAbsolutePath());
+            photoPreview.setAlpha(0.7F);
             photoPreview.setImageBitmap(bitmap);
 
             Ln.d("posting PhotoReadyForSubmit event");
             bus.post(new PhotoReadyForSubmit(selectedPhotoFile));
-//            selectedPhotoText.setText("Selected Photo: " + selectedPhotoFile.getName());
         }
 
     }
@@ -367,9 +360,8 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         }
 
         if (bitmap != null) {
-//            selectedPhotoText.setText("Selected Photo: " + imageUri.getPath());
+            photoPreview.setAlpha(0.7F);
             photoPreview.setImageBitmap(bitmap);
-
 
             selectedPhotoFile = null;
             try {
@@ -382,4 +374,102 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
             }
         }
     }
+
+
+    // Overriden Methods triggered by Subscribed events on BaseActivity
+    @Override
+    protected void handleS3Upload(S3UploadUpload s3UploadUpload) {
+        Ln.d("onS3Upload");
+        Upload upload = s3UploadUpload.getUpload();
+        File file = s3UploadUpload.getUploadedFile();
+
+        upload.addProgressListener(new S3UploadProgressListener(upload, file));
+    }
+
+    @Override
+    protected void handlePhotoReady(PhotoReadyForSubmit photoReadyForSubmit) {
+        File file = photoReadyForSubmit.getFile();
+        Ln.d("onPhotoReadyForSubmit. can read: " + file.canRead() + " path: " + file.getAbsolutePath());
+
+        photoUrl.setText("Selected Photo: " + selectedPhotoFile.getPath());
+        submitPhotoButton.setEnabled(file.canRead());
+    }
+
+    // Inner Class
+    private class S3UploadProgressListener implements ProgressListener {
+        protected Upload upload;
+        protected File file;
+
+        public S3UploadProgressListener(Upload upload, File file) {
+            this.upload = upload;
+            this.file = file;
+        }
+
+        @Override
+        public void progressChanged(final ProgressEvent progressEvent) {
+            if (upload == null) return;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    int percentTransfered = ((int) upload.getProgress().getPercentTransferred());
+                    if (percentTransfered > 0) {
+                        if (progressWheel.getVisibility() == View.INVISIBLE) {
+                            progressWheel.setVisibility(View.VISIBLE);
+                        }
+                        progressWheel.setProgress(percentTransfered);
+                    }
+
+                    switch (progressEvent.getEventCode()) {
+                        case ProgressEvent.COMPLETED_EVENT_CODE:
+                            Ln.d("Upload Complete: " + upload.getDescription());
+                            progressWheel.setProgress(100);
+                            progressWheel.setVisibility(View.GONE);
+                            photoPreview.setAlpha(1F);
+                            photoUrl.setText(upload.getDescription());
+                            file.delete();
+                            break;
+                        case ProgressEvent.FAILED_EVENT_CODE:
+                            try {
+                                AmazonClientException e = upload.waitForException();
+                                Ln.e("Unable to upload file to Amazon S3: " + e.getMessage());
+                            } catch (InterruptedException e) {
+                                Ln.e(e.getMessage());
+                            }
+                            break;
+                        case ProgressEvent.STARTED_EVENT_CODE:
+                            Ln.d("Upload Started: " + upload.getDescription());
+                            Toast.makeText(getBaseContext(), "Upload starting for: " + upload.getDescription(), Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                }
+            });
+        }
+    }
+
+    protected class GameEventListener {
+        // Event Subscription
+        @Subscribe
+        public void onPhotoReady(PhotoReadyForSubmit photoReadyForSubmit){
+            Ln.d("onPhotoReady");
+
+            handlePhotoReady(photoReadyForSubmit);
+        }
+        @Subscribe
+        public void onS3Upload(S3UploadUpload s3UploadUpload){
+            Ln.d("onS3Upload");
+
+            handleS3Upload(s3UploadUpload);
+        }
+        @Subscribe
+        public void onGcmRegistered (GcmRegistered gcmRegistered) {
+            Ln.d("onGcmRegistered");
+            userManager.updateUserGcmId(gcmRegistered.getRegId());
+        }
+        @Subscribe
+        public void onGcmUnregistered (GcmUnregistered gcmUnregistered) {
+            Ln.d("onGcmUnregistered");
+        }
+    }
+
 }

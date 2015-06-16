@@ -66,6 +66,10 @@
         android:layout_height="0dp"
         android:layout_weight="3"
         />
+    <TextView
+        android:id="@+id/photoUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <LinearLayout
         android:id="@+id/gameActionsContainer"
         android:layout_width="match_parent"
@@ -86,6 +90,13 @@
             android:layout_height="wrap_content"
             android:onClick="onSubmitPhotoClick"
             android:text="@string/submit_photo" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_photo"
+            android:id="@+id/selectPhotoButton"
+            android:onClick="selectPhoto"
+        />
     </LinearLayout>
 
 </LinearLayout>
