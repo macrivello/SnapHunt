@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
-import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
 
 import org.bson.types.ObjectId;
 
@@ -50,7 +49,7 @@ public class GamePlayersAdapter extends BaseAdapter {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View gamePlayerView = inflater.inflate(R.layout.game_player_list_item, parent, false);
-            TextView userDigestIdText = (TextView) gamePlayerView.findViewById(R.id.userDigestIdText);
+            TextView userDigestIdText = (TextView) gamePlayerView.findViewById(R.id.usernameText);
             userDigestIdText.setText(userDigestId != null ? userDigestId.toHexString() : "invalid");
 
             return gamePlayerView;

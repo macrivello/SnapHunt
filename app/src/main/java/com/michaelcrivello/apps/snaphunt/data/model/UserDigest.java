@@ -11,6 +11,10 @@ public class UserDigest {
     ObjectId userId;
     Photo profilePhoto;
 
+    public ObjectId getId() {
+        return id;
+    }
+
     public String getUsername() {
         return username;
     }

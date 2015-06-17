@@ -26,21 +26,21 @@ public class MainThreadBus extends Bus {
     }
 
     // Simple way to prevent registering the object twice - just catch the exeption thrown
-    @Override
-    public void register(Object object) {
-        try {
-            super.register(object);
-        } catch (Exception e) {
-            Ln.d("Unable to register object: %s. Error: %s", object.getClass().toString(), e.getMessage());
-        }
-    }
-
-    // Simple way to prevent unregistering the object twice - just catch the exeption thrown
-    @Override
-    public void unregister(Object object) {
-        try {
-            super.unregister(object);
-        } catch (Exception e) {
-            Ln.d("Unable to unregister object: %s. Error: %s", object.getClass().toString(), e.getMessage());
-        }    }
+//    @Override
+//    public void register(Object object) {
+//        try {
+//            super.register(object);
+//        } catch (Exception e) {
+//            Ln.d("Unable to register object: %s. Error: %s", object.getClass().toString(), e.getMessage());
+//        }
+//    }
+//
+//    // Simple way to prevent unregistering the object twice - just catch the exeption thrown
+//    @Override
+//    public void unregister(Object object) {
+//        try {
+//            super.unregister(object);
+//        } catch (Exception e) {
+//            Ln.d("Unable to unregister object: %s. Error: %s", object.getClass().toString(), e.getMessage());
+//        }    }
 }

@@ -16,9 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressListener;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
+import com.amazonaws.mobileconnectors.s3.transfermanager.model.UploadResult;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.adapter.GamePlayersAdapter;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
@@ -27,6 +30,7 @@ import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.Theme;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
+import com.michaelcrivello.apps.snaphunt.event.AWSTokenExpired;
 import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
 import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
 import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
@@ -35,6 +39,7 @@ import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.ThemeSelection;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.pnikosis.materialishprogress.ProgressWheel;
+import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -101,13 +106,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        Ln.d("onStart");
-//        bus.register(gameEventListener);
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         Ln.d("onPause");
@@ -119,25 +117,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         super.onResume();
         Ln.d("onResume");
         bus.register(gameEventListener);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Ln.d("onStop");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Ln.d("onDestroy");
-
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Ln.d("onRestart");
     }
 
     private void loadGameData(Game game) {
@@ -313,7 +292,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Ln.d("onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
-        bus.register(gameEventListener);
 
         switch (requestCode) {
             case IMAGE_SELECTED_CODE:
@@ -388,11 +366,12 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
     @Override
     protected void handlePhotoReady(PhotoReadyForSubmit photoReadyForSubmit) {
+        Ln.d("onPhotoReadyForSubmit");
         File file = photoReadyForSubmit.getFile();
-        Ln.d("onPhotoReadyForSubmit. can read: " + file.canRead() + " path: " + file.getAbsolutePath());
-
-        photoUrl.setText("Selected Photo: " + selectedPhotoFile.getPath());
-        submitPhotoButton.setEnabled(file.canRead());
+        if (file != null && file.canRead()) {
+            photoUrl.setText("Selected Photo: " + selectedPhotoFile.getPath());
+            submitPhotoButton.setEnabled(file.canRead());
+        }
     }
 
     // Inner Class
@@ -431,11 +410,18 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                             break;
                         case ProgressEvent.FAILED_EVENT_CODE:
                             try {
-                                AmazonClientException e = upload.waitForException();
-                                Ln.e("Unable to upload file to Amazon S3: " + e.getMessage());
+                                UploadResult uploadResult = upload.waitForUploadResult();
                             } catch (InterruptedException e) {
                                 Ln.e(e.getMessage());
+                            } catch (AmazonServiceException e) {
+                                if (("ExpiredToken".equals(e.getErrorCode()))) {
+                                    Ln.d("Expired AWS Token. Posting event to refresh credentials.");
+                                    // Expired Token. Refresh S3Client
+                                    // post event on bus with pending upload to retry. repost s3UploadEvent
+                                    bus.post(new AWSTokenExpired(new RoundPhotoUpload(file)));
+                                }
                             }
+
                             break;
                         case ProgressEvent.STARTED_EVENT_CODE:
                             Ln.d("Upload Started: " + upload.getDescription());
@@ -470,6 +456,13 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         public void onGcmUnregistered (GcmUnregistered gcmUnregistered) {
             Ln.d("onGcmUnregistered");
         }
+
+        @Produce
+        public PhotoReadyForSubmit producePhotoReadForSubmit() {
+            return new PhotoReadyForSubmit(selectedPhotoFile);
+        }
     }
+
+
 
 }

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import com.google.gson.Gson;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
+import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.util.GsonUtil;
 import com.squareup.okhttp.Call;
@@ -53,6 +54,11 @@ public interface SnaphuntApi {
     void loginUser(@Query("username") String username, @Query("password") String password, Callback<User> user);
 
     // UserDigest
+    @GET("/userdigest/:id")
+    void getUserDigest(@Path("gameId") String gameId, Callback<Game> cb);
+
+    @GET("/userdigest")
+    void getUserDigestList(@Query("id") List<String> userDigestIds, Callback<List<UserDigest>> userDigestList);
 
     // Game
     @GET("/games")

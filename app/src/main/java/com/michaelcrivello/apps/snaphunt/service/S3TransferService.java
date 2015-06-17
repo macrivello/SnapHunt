@@ -13,6 +13,7 @@ import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
+import com.michaelcrivello.apps.snaphunt.event.AWSTokenExpired;
 import com.michaelcrivello.apps.snaphunt.event.RoundPhotoUpload;
 import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
@@ -70,6 +71,17 @@ public class S3TransferService extends RoboService {
         });
     }
 
+    private void refreshAwsCredentials() {
+        if (sCredProvider != null) {
+            Needle.onBackgroundThread().execute(new Runnable() {
+                @Override
+                public void run() {
+                    sCredProvider.refresh();
+                }
+            });
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -112,5 +124,13 @@ public class S3TransferService extends RoboService {
             Ln.e("Error uploading file: " +file.getName() + ". Error: " + e.getMessage());
         }
         postUpload(upload, file);
+    }
+
+    @Subscribe
+    public void refreshToken(AWSTokenExpired awsTokenExpired) {
+        refreshAwsCredentials();
+        if(awsTokenExpired != null) {
+            bus.post(awsTokenExpired.getPendingUpload());
+        }
     }
 }
