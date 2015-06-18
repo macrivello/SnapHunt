@@ -36,6 +36,8 @@
         <activity android:name=".ui.LoginActivity"/>
         <activity android:name=".ui.RegisterActivity"/>
         <activity android:name=".ui.GameActivity"/>
+        <activity android:name=".ui.GameCreationActivity"/>
+
 
         <activity android:name=".ui.WelcomeActivity">
             <intent-filter>
@@ -63,7 +65,8 @@
         // Roboguice Modules. Add modules as csv.
         <meta-data android:name="roboguice.modules"
             android:value="com.michaelcrivello.apps.snaphunt.module.BusModule,
-            com.michaelcrivello.apps.snaphunt.module.SnaphuntApiModule"
+            com.michaelcrivello.apps.snaphunt.module.SnaphuntApiModule,
+            com.michaelcrivello.apps.snaphunt.module.DataModule"
             />
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

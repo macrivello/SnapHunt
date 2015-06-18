@@ -15,6 +15,7 @@ import com.michaelcrivello.apps.snaphunt.service.S3TransferService;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.util.GcmUtil;
 import com.squareup.otto.Bus;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 

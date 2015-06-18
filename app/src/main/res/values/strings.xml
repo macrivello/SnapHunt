@@ -32,7 +32,11 @@
     <string name="submit_photo">Submit Photo</string>
     <string name="take_photo">Take Photo</string>
     <string name="select_photo">Select Photo</string>
-
+    <string name="gameNameTitle">Game Name</string>
+    <string name="numberOfRoundsTitle">Number Of Rounds</string>
+    <string name="roundTimeLimitTitle">Round Time Limit</string>
+    <string name="invitePlayersTitle">Invite Players</string>
+    <string name="startGame">Start Game</string>
 
 
 </resources>

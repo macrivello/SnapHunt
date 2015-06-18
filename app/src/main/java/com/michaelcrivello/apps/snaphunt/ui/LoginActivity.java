@@ -28,8 +28,8 @@ import roboguice.util.Ln;
  * Created by michael on 3/18/15.
  */
 public class LoginActivity extends BaseActivity {
-    @InjectView(R.id.login_username) EditText username;
-    @InjectView (R.id.login_password) EditText password;
+    @InjectView(R.id.login_username) EditText usernameText;
+    @InjectView (R.id.login_password) EditText passwordText;
     @InjectView (R.id.login_submit_button) Button loginButton;
 
     @Override
@@ -56,6 +56,19 @@ public class LoginActivity extends BaseActivity {
 
     //TODO: Validation, POST to API
     public void onLoginSubmit(View v){
+        String username = usernameText.getText().toString().trim();
+        String password = passwordText.getText().toString().trim();
+        if (validateInput(username, password)) {
+            attemptLogin(username, password);
+        }
+    }
+
+    private boolean validateInput(String username, String password) {
+        // TODO: Implement proper validation.
+        if (username.length() > 0 && password.length() > 0){
+            return true;
+        }
+        return false;
     }
 
     private void attemptLogin(String username, String password){

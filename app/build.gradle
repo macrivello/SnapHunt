@@ -1,23 +1,25 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion '22.0.0'
 
-//    compileOptions{
-//        sourceCompatibility 1.8
-//        targetCompatibility 1.8
-//    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         applicationId "com.michaelcrivello.apps.snaphunt"
         minSdkVersion 21
         targetSdkVersion 22
+        compileSdkVersion 22
+        buildToolsVersion "22.0.1"
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -65,4 +67,7 @@ dependencies {
     compile 'com.netflix.rxjava:rxjava-android:0.16.1'
 
     compile 'com.etsy.android.grid:library:1.0.3'
+    compile 'com.annimon:stream:1.0.1'
+
 }
+

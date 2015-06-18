@@ -82,6 +82,7 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void startNewGame() {
-        Toast.makeText(SnaphuntApp.getInstance(), "New Game", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, GameCreationActivity.class));
+        overridePendingTransition(0,0);
     }
 }

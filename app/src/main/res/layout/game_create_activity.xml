@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="6">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/gameNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/abc_text_size_title_material"
+            android:text="@string/gameNameTitle"/>
+        <EditText
+            android:id="@+id/gameNameEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/gameNameTitle"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/numberOfRoundsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/abc_text_size_title_material"
+            android:text="@string/numberOfRoundsTitle"/>
+        <!-- TODO: This will be a radio button choice of 3 -->
+        <EditText
+            android:id="@+id/numberOfRoundsEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/numberOfRoundsTitle"
+            android:enabled="false"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/roundTimeLimitText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/abc_text_size_title_material"
+            android:text="@string/roundTimeLimitTitle"/>
+
+        <!-- TODO: This will be a radio button choice of 3 -->
+        <EditText
+            android:id="@+id/roundTimeLimitEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/roundTimeLimitTitle"
+            android:enabled="false"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/invitePlayersText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/abc_text_size_title_material"
+        android:text="@string/invitePlayersTitle"/>
+
+    <!-- TODO: ListView for now, make selectable.  -->
+    <!-- TODO: Move invites to popup dialog or fragment.  -->
+    <ListView
+        android:id="@+id/invitePlayerListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"/>
+
+    <Button
+        android:id="@+id/startGameButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/startGame"
+        android:onClick="onStartGame"/>
+
+</LinearLayout>

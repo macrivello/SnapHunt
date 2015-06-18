@@ -1,13 +1,11 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
-import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -15,17 +13,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressListener;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.mobileconnectors.s3.transfermanager.model.UploadResult;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.michaelcrivello.apps.snaphunt.R;
-import com.michaelcrivello.apps.snaphunt.adapter.GamePlayersAdapter;
+import com.michaelcrivello.apps.snaphunt.adapter.UserDigestAdapter;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
-import com.michaelcrivello.apps.snaphunt.data.model.Photo;
 import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.Theme;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
@@ -42,11 +39,15 @@ import com.pnikosis.materialishprogress.ProgressWheel;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
+import org.bson.types.ObjectId;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -85,7 +86,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     protected List<UserDigest> players;
     protected Theme currentTheme;
 
-    protected GamePlayersAdapter gamePlayersAdapter;
+    protected UserDigestAdapter gamePlayersAdapter;
     protected GameEventListener gameEventListener;
 
     // File uploading
@@ -101,7 +102,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
         getGameData(getGameIdFromIntent());
 
-        gamePlayersAdapter = new GamePlayersAdapter(this);
+        gamePlayersAdapter = new UserDigestAdapter(this);
         gameEventListener = new GameEventListener();
     }
 
@@ -146,13 +147,33 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         playersListView.addHeaderView(header, null, false);
 
         // Setup Adapter
-        gamePlayersAdapter.loadGame(game);
-        playersListView.setAdapter(gamePlayersAdapter);
+        loadPlayList(game);
 
         // Photo
         // Disable submit button when there is no photo selected to upload
         submitPhotoButton.setEnabled(selectedPhotoFile != null);
 
+    }
+
+    private void loadPlayList(Game game) {
+        // Playing around with Java 8 Streams, Lambdas. ('::' - Method Reference)
+        Stream<ObjectId> userIdsAsObjects = Stream.of(game.getPlayers());
+        List<String> userIds = userIdsAsObjects
+                .map(ObjectId::toHexString)
+                .collect(Collectors.toList());
+
+        snaphuntApi.getUserDigestList(userIds, new Callback<List<UserDigest>>() {
+            @Override
+            public void success(List<UserDigest> userDigests, Response response) {
+                gamePlayersAdapter.loadUsers(userDigests);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Ln.e("Failed to load users into ListView");
+            }
+        });
+        playersListView.setAdapter(gamePlayersAdapter);
     }
 
     // Check the game_activity state and handle appropriately, such as prompting Theme selection.
