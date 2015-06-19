@@ -6,13 +6,13 @@ import org.bson.types.ObjectId;
  * Created by michael on 3/22/15.
  */
 public class UserDigest {
-    ObjectId id;
+    ObjectId _id;
     String username;
     ObjectId userId;
     Photo profilePhoto;
 
     public ObjectId getId() {
-        return id;
+        return _id;
     }
 
     public String getUsername() {

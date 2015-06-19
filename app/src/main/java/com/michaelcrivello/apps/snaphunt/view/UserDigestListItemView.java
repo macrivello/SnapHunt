@@ -3,6 +3,7 @@ package com.michaelcrivello.apps.snaphunt.view;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,23 +36,36 @@ public class UserDigestListItemView extends LinearLayout {
 
     ImageView userThumb;
     TextView username;
+    ViewGroup container;
 
     public UserDigestListItemView(Context context) {
-        super(context);
+        this(context, null);
         this.context = context;
+    }
+
+    public UserDigestListItemView(Context context, UserDigest user) {
+        super(context);
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.user_digest_list_item, this);
 
+        container = (ViewGroup) findViewById(R.id.listItemContainer);
         userThumb = (ImageView) findViewById(R.id.profilePhoto);
         username = (TextView) findViewById(R.id.usernameText);
+
+        container.setBackground(getResources().getDrawable(R.drawable.list_item_selector, null));
 
         // getDrawable(id, theme);
         // TODO: update theme
         DEFAULT_THUMB = getResources().getDrawable(R.drawable.blank_avatar, null);
+
+        if (user != null) {
+            setUser(user);
+        }
     }
 
     public void setUser(UserDigest user) {
+        this.user = user;
         Photo photo = user.getProfilePhoto();
         Picasso.with(context)
                 .load(photo != null ? photo.getUrl() : null)
@@ -60,4 +74,7 @@ public class UserDigestListItemView extends LinearLayout {
         username.setText(user.getUsername());
     }
 
+    public UserDigest getUser() {
+        return user;
+    }
 }

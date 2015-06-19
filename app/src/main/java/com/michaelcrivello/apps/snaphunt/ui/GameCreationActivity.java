@@ -2,14 +2,18 @@ package com.michaelcrivello.apps.snaphunt.ui;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.michaelcrivello.apps.snaphunt.R;
+import com.michaelcrivello.apps.snaphunt.adapter.SelectableUserDigestAdapter;
 import com.michaelcrivello.apps.snaphunt.adapter.UserDigestAdapter;
 import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
+import com.michaelcrivello.apps.snaphunt.misc.Selectable;
+import com.michaelcrivello.apps.snaphunt.view.UserDigestListItemView;
 
 import java.util.List;
 
@@ -28,14 +32,14 @@ public class GameCreationActivity extends BaseActivity {
     @InjectView(R.id.roundTimeLimitEdit) EditText roundTimeLimit;
     @InjectView(R.id.invitePlayerListView) ListView inviteListView;
 
-    UserDigestAdapter userDigestAdapter;
+    SelectableUserDigestAdapter selectableUserDigestAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_create_activity);
 
-        userDigestAdapter = new UserDigestAdapter(this);
+        selectableUserDigestAdapter = new SelectableUserDigestAdapter(this);
         initPlayerList();
     }
 
@@ -44,7 +48,7 @@ public class GameCreationActivity extends BaseActivity {
         snaphuntApi.getUserDigestList(null, new Callback<List<UserDigest>>() {
             @Override
             public void success(List<UserDigest> userDigests, Response response) {
-                userDigestAdapter.loadUsers(userDigests);
+                selectableUserDigestAdapter.loadUsers(userDigests);
             }
 
             @Override
@@ -52,11 +56,29 @@ public class GameCreationActivity extends BaseActivity {
                 Ln.e(error, "Failed to load User List");
             }
         });
-        inviteListView.setAdapter(userDigestAdapter);
+        inviteListView.setAdapter(selectableUserDigestAdapter);
+        inviteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // selected ? Add view to list
+                UserDigestListItemView itemView = (UserDigestListItemView) view;
+                SelectableUserDigestAdapter adapter = ((SelectableUserDigestAdapter)parent.getAdapter());
+                Selectable item = adapter.getSelectable(itemView.getUser().getId().toHexString());
+
+                adapter.setSelected(item, !item.isSelected());
+                itemView.setActivated(item.isSelected());
+
+                Ln.d("user: " + (((UserDigestListItemView) view).getUser()).getUsername() + " selected: " + item.isSelected());
+            }
+        });
     }
 
     public void onStartGame(View v) {
         // Create game
-        Toast.makeText(this, "Start Game", Toast.LENGTH_LONG).show();
+        String message = "Users: ";
+        for (Selectable selectable : (List<Selectable>)selectableUserDigestAdapter.getSelectedItems()) {
+            message = message.concat(((UserDigest)selectable.getObject()).getUsername());
+        }
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 }
