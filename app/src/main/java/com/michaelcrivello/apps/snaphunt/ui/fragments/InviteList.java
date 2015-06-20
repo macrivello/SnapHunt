@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
@@ -35,6 +36,7 @@ public class InviteList extends BaseFragment {
     ListView invitesListView;
     GameListAdapter inviteListAdapter;
     ViewGroup emptyListOverlay;
+    TextView emptyText;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,8 @@ public class InviteList extends BaseFragment {
         View root = inflater.inflate(R.layout.invites_list,container,false);
         invitesListView = (ListView) root.findViewById(R.id.invites_list_view);
         emptyListOverlay = (ViewGroup) root.findViewById(R.id.empty_list_overlay);
+        emptyText = (TextView) emptyListOverlay.findViewById(R.id.empty_list_text);
+        emptyText.setText(getString(R.string.empty_invite_list));
         return root;
     }
 

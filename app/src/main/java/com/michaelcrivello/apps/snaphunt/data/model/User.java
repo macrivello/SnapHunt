@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class User {
     ObjectId _id;
+    ObjectId userDigest;
     String email;
     String username;
     String authToken;
@@ -104,6 +105,10 @@ public class User {
 
     public Date getTimeLastModifed() {
         return timeLastModifed;
+    }
+
+    public ObjectId getUserDigest() {
+        return userDigest;
     }
 }
 

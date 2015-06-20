@@ -20,6 +20,7 @@ import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.util.S3Util;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
@@ -33,6 +34,7 @@ import roboguice.util.RoboAsyncTask;
  */
 public class S3TransferService extends RoboService {
     @Inject Bus bus;
+    @Inject SnaphuntApp snaphuntApp;
     private TransferManager transferManager;
     private CognitoCredentialsProvider sCredProvider;
 

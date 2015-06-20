@@ -40,4 +40,5 @@ public class SnaphuntApp extends MultiDexApplication {
     }
 
     public static SnaphuntApp getInstance() { return instance; }
+
 }
