@@ -1,18 +1,22 @@
 package com.michaelcrivello.apps.snaphunt.event;
 
-import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
-
 /**
  * Created by tao on 6/16/15.
  */
 public class AWSTokenExpired {
-    RoundPhotoUpload pendingUpload;
+    S3PhotoUpload pendingUpload;
+    S3PhotoDownload pendingDownload;
 
-    public AWSTokenExpired(RoundPhotoUpload roundPhotoUpload) {
-        pendingUpload = roundPhotoUpload;
+    public AWSTokenExpired(S3PhotoUpload s3PhotoUpload, S3PhotoDownload photoDownload) {
+        pendingUpload = s3PhotoUpload;
+        pendingDownload = photoDownload;
     }
 
-    public RoundPhotoUpload getPendingUpload() {
+    public S3PhotoUpload getPendingUpload() {
         return pendingUpload;
+    }
+
+    public S3PhotoDownload getPendingDownload() {
+        return pendingDownload;
     }
 }

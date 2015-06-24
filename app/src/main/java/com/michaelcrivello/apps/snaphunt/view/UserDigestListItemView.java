@@ -22,6 +22,7 @@ import org.bson.types.ObjectId;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import roboguice.RoboGuice;
 import roboguice.util.Ln;
 
 /**
@@ -40,11 +41,13 @@ public class UserDigestListItemView extends LinearLayout {
 
     public UserDigestListItemView(Context context) {
         this(context, null);
-        this.context = context;
     }
 
     public UserDigestListItemView(Context context, UserDigest user) {
         super(context);
+        this.context = context;
+
+        RoboGuice.injectMembers(context, this);
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.user_digest_list_item, this);
@@ -67,10 +70,9 @@ public class UserDigestListItemView extends LinearLayout {
     public void setUser(UserDigest user) {
         this.user = user;
         Photo photo = user.getProfilePhoto();
-        Picasso.with(context)
-                .load(photo != null ? photo.getUrl() : null)
+        picasso.load(photo != null ? photo.getUrl() : null)
                 .placeholder(DEFAULT_THUMB)
-                .into(userThumb);
+               .into(userThumb);
         username.setText(user.getUsername());
     }
 

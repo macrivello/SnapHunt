@@ -57,4 +57,10 @@ public class S3Util {
     public static String getFileName(String path) {
         return path.substring(path.lastIndexOf("/") + 1); 
     }
+
+    public static String getS3ObjectNameHash(String bucket, String key){
+        return Integer.toString(new String(bucket + "/" + key).hashCode());
+    }
+
+
 }

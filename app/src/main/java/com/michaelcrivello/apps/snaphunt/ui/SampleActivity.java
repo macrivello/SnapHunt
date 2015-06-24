@@ -1,17 +1,11 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,19 +15,11 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressListener;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
-import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
-import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.event.GcmMessage;
-import com.michaelcrivello.apps.snaphunt.event.RoundPhotoUpload;
+import com.michaelcrivello.apps.snaphunt.event.S3PhotoUpload;
 import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
-import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.pnikosis.materialishprogress.ProgressWheel;
-import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -42,10 +28,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
@@ -87,7 +70,7 @@ public class SampleActivity extends BaseActivity {
         Ln.d("Attempting to upload file.");
 
         // Upload progress is returned as S3TransferProgress event
-        bus.post(new RoundPhotoUpload(selectedPhotoFile));
+        bus.post(new S3PhotoUpload(selectedPhotoFile));
     }
 
     public void selectPhoto(View v) {

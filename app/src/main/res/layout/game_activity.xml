@@ -98,6 +98,13 @@
             android:id="@+id/selectPhotoButton"
             android:onClick="selectPhoto"
         />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Test Download"
+            android:id="@+id/testDownloadbutton"
+            android:onClick="testDownload"
+            />
     </LinearLayout>
 
 </LinearLayout>

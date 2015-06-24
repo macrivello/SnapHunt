@@ -19,6 +19,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 
+import roboguice.RoboGuice;
 import roboguice.util.Ln;
 
 
@@ -36,6 +37,7 @@ public class SnaphuntApp extends MultiDexApplication {
 
     public void startServices() {
         Ln.d("Making call to start services");
+
         startService(new Intent(this, S3TransferService.class));
     }
 

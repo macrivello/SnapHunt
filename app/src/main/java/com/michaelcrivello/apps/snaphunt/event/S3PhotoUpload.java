@@ -5,12 +5,12 @@ import java.io.File;
 /**
  * Event posted on Bus for a photo submission in a round.
  */
-public class RoundPhotoUpload {
+public class S3PhotoUpload {
 
     // TODO: Add other metadata
     File photo;
 
-    public RoundPhotoUpload(File file){
+    public S3PhotoUpload(File file){
         this.photo = file;
     }
 

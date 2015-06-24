@@ -1,5 +1,6 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,6 +17,8 @@ import android.widget.Toast;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressListener;
+import com.amazonaws.mobileconnectors.s3.transfermanager.Download;
+import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.mobileconnectors.s3.transfermanager.model.UploadResult;
 import com.annimon.stream.Collectors;
@@ -31,7 +34,8 @@ import com.michaelcrivello.apps.snaphunt.event.AWSTokenExpired;
 import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
 import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
 import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
-import com.michaelcrivello.apps.snaphunt.event.RoundPhotoUpload;
+import com.michaelcrivello.apps.snaphunt.event.S3PhotoUpload;
+import com.michaelcrivello.apps.snaphunt.event.S3TransferManagerUpdated;
 import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.ThemeSelection;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
@@ -46,11 +50,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import needle.Needle;
+import needle.UiRelatedTask;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -89,6 +93,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     protected UserDigestAdapter gamePlayersAdapter;
     protected GameEventListener gameEventListener;
 
+
     // File uploading
     private File selectedPhotoFile = null;
     private String selectedPhotoFilePath;
@@ -104,6 +109,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
         gamePlayersAdapter = new UserDigestAdapter(this);
         gameEventListener = new GameEventListener();
+
     }
 
     @Override
@@ -245,7 +251,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         Ln.d("Attempting to upload file.");
 
         // Upload progress is returned as S3TransferProgress event
-        bus.post(new RoundPhotoUpload(selectedPhotoFile));
+        bus.post(new S3PhotoUpload(selectedPhotoFile));
     }
 
     // Start ActivityfoForResult intent with MediaStore.ACTION_IMAGE_CAPTURE. Opens Camera.
@@ -439,7 +445,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                                     Ln.d("Expired AWS Token. Posting event to refresh credentials.");
                                     // Expired Token. Refresh S3Client
                                     // post event on bus with pending upload to retry. repost s3UploadEvent
-                                    bus.post(new AWSTokenExpired(new RoundPhotoUpload(file)));
+                                    bus.post(new AWSTokenExpired(new S3PhotoUpload(file),null));
                                 }
                             }
 
@@ -483,7 +489,4 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
             return new PhotoReadyForSubmit(selectedPhotoFile);
         }
     }
-
-
-
 }

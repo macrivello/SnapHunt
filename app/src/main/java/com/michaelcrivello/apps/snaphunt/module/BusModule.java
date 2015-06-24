@@ -1,6 +1,7 @@
 package com.michaelcrivello.apps.snaphunt.module;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.michaelcrivello.apps.snaphunt.bus.MainThreadBus;
 import com.squareup.otto.Bus;
 
@@ -12,4 +13,10 @@ public class BusModule extends AbstractModule{
     protected void configure() {
         bind(Bus.class).to(MainThreadBus.class).asEagerSingleton();
     }
+//
+//    @Provides
+//    Bus provideBus() {
+//        return new Bus();
+//    }
+
 }

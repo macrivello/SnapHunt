@@ -3,7 +3,6 @@ package com.michaelcrivello.apps.snaphunt.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.IBinder;
 
 import com.amazonaws.AmazonClientException;
@@ -14,20 +13,21 @@ import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.event.AWSTokenExpired;
-import com.michaelcrivello.apps.snaphunt.event.RoundPhotoUpload;
+import com.michaelcrivello.apps.snaphunt.event.S3PhotoDownload;
+import com.michaelcrivello.apps.snaphunt.event.S3PhotoUpload;
+import com.michaelcrivello.apps.snaphunt.event.S3TransferManagerUpdated;
 import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
-import com.michaelcrivello.apps.snaphunt.util.S3Util;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import com.squareup.picasso.Picasso;
+import com.squareup.otto.Produce;
 
 import java.io.File;
 
 import needle.Needle;
+import needle.UiRelatedTask;
 import roboguice.service.RoboService;
 import roboguice.util.Ln;
-import roboguice.util.RoboAsyncTask;
 
 /**
  * Created by michael on 3/11/15.
@@ -35,7 +35,7 @@ import roboguice.util.RoboAsyncTask;
 public class S3TransferService extends RoboService {
     @Inject Bus bus;
     @Inject SnaphuntApp snaphuntApp;
-    private TransferManager transferManager;
+    @Inject TransferManager transferManager;
     private CognitoCredentialsProvider sCredProvider;
 
     private Context context;
@@ -63,22 +63,31 @@ public class S3TransferService extends RoboService {
                 );
         }
 
-        Needle.onBackgroundThread().serially().execute(new Runnable() {
+        Needle.onBackgroundThread().execute(new UiRelatedTask<TransferManager>() {
             @Override
-            public void run() {
+            protected TransferManager doWork() {
                 Ln.d("AWS Cred ID: " + sCredProvider.getIdentityId());
 
-                transferManager = new TransferManager(sCredProvider);
+                return transferManager = new TransferManager(sCredProvider);
+            }
+
+            @Override
+            protected void thenDoUiRelatedWork(TransferManager transferManager) {
+                Ln.d("posting new S3TransferManagerUpdated");
+                 bus.post(new S3TransferManagerUpdated(transferManager, null));
             }
         });
     }
 
-    private void refreshAwsCredentials() {
+
+    private void refreshAwsCredentials(AWSTokenExpired awsTokenExpired) {
         if (sCredProvider != null) {
             Needle.onBackgroundThread().execute(new Runnable() {
                 @Override
                 public void run() {
                     sCredProvider.refresh();
+                    Ln.d("posting new S3TransferManagerUpdated");
+                    bus.post(new S3TransferManagerUpdated(transferManager, awsTokenExpired));
                 }
             });
         }
@@ -108,7 +117,7 @@ public class S3TransferService extends RoboService {
         Register events
      */
     @Subscribe
-    public void onRoundPhotoUpload(RoundPhotoUpload roundPhotoUpload) {
+    public void onRoundPhotoUpload(S3PhotoUpload roundPhotoUpload) {
         File file = roundPhotoUpload.getPhoto();
         if (file == null) {
             Ln.e("File to upload was null.");
@@ -123,16 +132,31 @@ public class S3TransferService extends RoboService {
         try{
             upload = transferManager.upload(Constants.BUCKET_NAME, Constants.PHOTO_UPLOAD_FOLDER + "/" + file.getName(), file);
         } catch (AmazonClientException e) {
-            Ln.e("Error uploading file: " +file.getName() + ". Error: " + e.getMessage());
+            Ln.e("Error uploading file: " + file.getName() + ". Error: " + e.getMessage());
         }
         postUpload(upload, file);
     }
 
     @Subscribe
     public void refreshToken(AWSTokenExpired awsTokenExpired) {
-        refreshAwsCredentials();
+        refreshAwsCredentials(awsTokenExpired);
         if(awsTokenExpired != null) {
-            bus.post(awsTokenExpired.getPendingUpload());
+            S3PhotoUpload photoUpload = awsTokenExpired.getPendingUpload();
+            S3PhotoDownload photoDownload = awsTokenExpired.getPendingDownload();
+
+            if (photoUpload != null) {
+                bus.post(photoUpload);
+            }
+            if (photoDownload != null) {
+                bus.post(photoDownload);
+            }
         }
+    }
+
+    //TODO: This could be an edge case bug if there is a pending download in awsexpiredtoken event
+    @Produce
+    public S3TransferManagerUpdated produceS3TransferManager(){
+        Ln.d("produceTransferManager");
+        return new S3TransferManagerUpdated(transferManager, null);
     }
 }

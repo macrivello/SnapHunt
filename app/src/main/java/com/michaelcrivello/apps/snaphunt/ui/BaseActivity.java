@@ -3,6 +3,7 @@ package com.michaelcrivello.apps.snaphunt.ui;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.google.android.gms.common.api.Api;
 import com.google.inject.Inject;
@@ -11,6 +12,7 @@ import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
 import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
 import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
 import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
+import com.michaelcrivello.apps.snaphunt.event.S3TransferManagerUpdated;
 import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
 import com.michaelcrivello.apps.snaphunt.util.GcmUtil;
 import com.michaelcrivello.apps.snaphunt.util.UserManager;
@@ -34,6 +36,7 @@ public class BaseActivity extends RoboActionBarActivity {
     @Inject Bus bus;
     @Inject UserManager userManager;
     BaseActivityBusListener baseListener;
+    TransferManager transferManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,11 @@ public class BaseActivity extends RoboActionBarActivity {
         @Subscribe
         public void onGcmUnregistered (GcmUnregistered gcmUnregistered) {
             Ln.d("onGcmUnregistered");
+        }
+        @Subscribe
+        public void updateTransferManager (S3TransferManagerUpdated transferManagerUpdated) {
+            Ln.d("updateTransferManager");
+            transferManager = transferManagerUpdated.getTransferManager();
         }
     }
 
