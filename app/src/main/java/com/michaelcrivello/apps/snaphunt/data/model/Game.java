@@ -2,6 +2,7 @@ package com.michaelcrivello.apps.snaphunt.data.model;
 
 import org.bson.types.ObjectId;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -10,7 +11,10 @@ import java.util.List;
  */
 // http://craigsmusings.com/2011/04/09/deserializing-mongodb-ids-and-dates-with-gson/
 
-public class Game {
+public class Game implements Serializable {
+    static final long serialVersionUID = 44L;
+
+
     ObjectId _id;
     int roundTimeLimit;
     int numberOfRounds;
@@ -66,5 +70,17 @@ public class Game {
 
     public boolean isGameStarted() {
         return gameStarted;
+    }
+
+    public void setRoundTimeLimit(int roundTimeLimit) {
+        this.roundTimeLimit = roundTimeLimit;
+    }
+
+    public void setNumberOfRounds(int numberOfRounds) {
+        this.numberOfRounds = numberOfRounds;
+    }
+
+    public void setPlayers(List<ObjectId> players) {
+        this.players = players;
     }
 }

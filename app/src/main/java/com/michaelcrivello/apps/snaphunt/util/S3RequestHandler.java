@@ -1,6 +1,7 @@
 package com.michaelcrivello.apps.snaphunt.util;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -16,6 +17,7 @@ import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.event.AWSTokenExpired;
 import com.michaelcrivello.apps.snaphunt.event.S3PhotoDownload;
 import com.michaelcrivello.apps.snaphunt.event.S3TransferManagerUpdated;
+import com.squareup.okhttp.OkHttpClient;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Picasso;
@@ -24,10 +26,12 @@ import com.squareup.picasso.RequestHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import roboguice.util.Ln;
@@ -36,19 +40,16 @@ import roboguice.util.Ln;
  * As of creation, custom RequestHandler for Picasso is in beta.
  */
 public class S3RequestHandler extends RequestHandler {
+    OkHttpClient okHttpClient;
     Bus bus;
     TransferManager transferManager;
     Context context;
-    ArrayList<PersistableDownload> pendingDownloads;
-    File storageDir;
 
     @Inject
-    public S3RequestHandler(Context context, Bus bus){
+    public S3RequestHandler(Context context, Bus bus, OkHttpClient okHttpClient){
         this.bus = bus;
         this.context = context;
-        pendingDownloads = new ArrayList<>();
-
-        storageDir = context.getExternalCacheDir();
+        this.okHttpClient = okHttpClient;
 
         registerOnBus();
     }
@@ -93,9 +94,22 @@ public class S3RequestHandler extends RequestHandler {
             }
         }
 
-            URL signedUrl = generatePreSignedUrl(bucket, key);
-            InputStream in = signedUrl.openStream();
-            return new Result(in, Picasso.LoadedFrom.NETWORK);
+        InputStream in = null;
+        in = transferManager.getAmazonS3Client().getObject(bucket, key).getObjectContent();
+
+        // if url is invalid, clear http cache (at least that call) and try again
+        return new Result(in, Picasso.LoadedFrom.NETWORK);
+
+    }
+
+    private void removeRequestFromCache(Uri uri) {
+        // TODO: JUST FLUSHING CACHE FOR NOW. PLEASE FIX THIS
+        Ln.d("Clearing http cache");
+        try {
+            okHttpClient.getCache().flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Subscribe
@@ -109,8 +123,14 @@ public class S3RequestHandler extends RequestHandler {
 
     protected URL generatePreSignedUrl(String bucketName, String objectKey) {
         try {
+            Ln.d("Generating signed url for " + bucketName + '/' + objectKey);
             GeneratePresignedUrlRequest generatePresignedUrlRequest =
                     new GeneratePresignedUrlRequest(bucketName, objectKey);
+
+            Date d = new Date();
+            d.setTime(d.getTime() + 86400000);
+            generatePresignedUrlRequest.setExpiration(d);
+
 
             URL generatedURL = transferManager.getAmazonS3Client().generatePresignedUrl(generatePresignedUrlRequest);
             Ln.d("Generated SignedURL: " + generatedURL);

@@ -37,4 +37,12 @@ public class Constants {
 
     // Intent Bundle Keys
     public static final String GAME_ID_KEY = "GAME_ID_KEY";
+    public static final String GAME_KEY = "GAME_KEY";
+
+
+    // Game Related
+    public static final int NUMBER_OR_ROUNDS_DEFAULT = 10;
+    public static final int ROUND_TIME_LIMIT = 720; // 720 minutes == 12 hours
+
+
 }

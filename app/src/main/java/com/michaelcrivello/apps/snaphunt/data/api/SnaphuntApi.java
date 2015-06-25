@@ -64,6 +64,9 @@ public interface SnaphuntApi {
     @GET("/games")
     void getGames(Callback<List<Game>> games);
 
+    @POST("/games")
+    void createGame(@Body Game newGame, @Query("id") List<String> userDigestIds, Callback<Game> game);
+
     @GET("/games/{gameId}")
     void getGame(@Path("gameId") String gameId, Callback<Game> cb);
 

@@ -105,11 +105,17 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_activity);
 
-        getGameData(getGameIdFromIntent());
+        Game intentGame;
+        if ((intentGame = (Game) getIntent().getSerializableExtra(Constants.GAME_KEY)) != null) {
+            loadGameData(intentGame);
+        } else {
+            getGameData(getGameIdFromIntent());
+        }
 
         gamePlayersAdapter = new UserDigestAdapter(this);
         gameEventListener = new GameEventListener();
 
+        // TODO: grab game object from intent
     }
 
     @Override
@@ -187,7 +193,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         // TODO: Check if user is Judge. Check if theme has been selected, if not then show overlay.
     }
 
-
     @Override
     public void themeSelected(Theme theme) {
         // Make a network request to update the game_activity on the server that this rounds theme
@@ -215,7 +220,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
             }
         });
     }
-
 
     //TODO refactor, too verbose
     public String getGameIdFromIntent() {

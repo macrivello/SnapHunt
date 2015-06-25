@@ -49,7 +49,7 @@ public class DataModule extends AbstractModule {
                         Ln.e(e, "Failed to load image: %s", uri);
                     }
                 })
-                .addRequestHandler(provideS3RequestHandler(app, bus))
+                .addRequestHandler(provideS3RequestHandler(app, bus, client))
                 .build();
     }
 
@@ -59,8 +59,8 @@ public class DataModule extends AbstractModule {
     }
 
     @Provides
-    S3RequestHandler provideS3RequestHandler(Context context, Bus bus) {
-        return new S3RequestHandler(context, bus);
+    S3RequestHandler provideS3RequestHandler(Context context, Bus bus, OkHttpClient client) {
+        return new S3RequestHandler(context, bus, client);
     }
 
     static OkHttpClient createOkHttpClient(Application app) {
@@ -79,7 +79,6 @@ public class DataModule extends AbstractModule {
             Ln.e(e, "Error building httpclient cache.");
         }
         client.setCache(cache);
-
         return client;
     }
 
