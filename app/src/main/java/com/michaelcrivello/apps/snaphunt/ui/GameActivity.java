@@ -85,6 +85,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     TextView photoUrl;
 
     protected Game game;
+    protected int currentRoundNumber;
     protected Round currentRound;
     protected User currentJudge;
     protected List<UserDigest> players;
@@ -103,7 +104,11 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Ln.d("Loading game");
         setContentView(R.layout.game_activity);
+
+        gamePlayersAdapter = new UserDigestAdapter(this);
+        gameEventListener = new GameEventListener();
 
         Game intentGame;
         if ((intentGame = (Game) getIntent().getSerializableExtra(Constants.GAME_KEY)) != null) {
@@ -111,11 +116,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         } else {
             getGameData(getGameIdFromIntent());
         }
-
-        gamePlayersAdapter = new UserDigestAdapter(this);
-        gameEventListener = new GameEventListener();
-
-        // TODO: grab game object from intent
     }
 
     @Override
@@ -134,21 +134,25 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
     private void loadGameData(Game game) {
         this.game = game;
-        this.currentRound = game.getRounds().get(game.getCurrentRound());
-        this.currentTheme = currentRound.getSelectedTheme();
+
+        // TODO: Rounds are 1-indexed, currentRound is 0-indexed
+        this.currentRoundNumber = game.getCurrentRound();
+
+        snaphuntApi.getRound(game.getGameIdAsString(), game.getRounds().get(currentRoundNumber).toHexString(), new Callback<Round>() {
+            @Override
+            public void success(Round round, Response response) {
+                loadCurrentRound(round);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Ln.e(error, "Error loading round Data");
+            }
+        });
+        // TODO: hit getRound endpoint to get round data.
 
         gameStateCheck();
 
-        // set TextViews
-        roundStatusText.setText(currentRound.isActive() ? "Started" : "Not Started");
-        String themeStr;
-        if (currentTheme != null) {
-            themeStr = "Theme: " + currentTheme.getPhrase();
-        } else {
-            themeStr = "No Theme Selected";
-        }
-
-        themeText.setText(themeStr);
         roundNumberText.setText("Current Round: " + game.getCurrentRound());
 
         // Add Header
@@ -164,6 +168,28 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         // Photo
         // Disable submit button when there is no photo selected to upload
         submitPhotoButton.setEnabled(selectedPhotoFile != null);
+
+    }
+
+    private void loadCurrentRound(Round round) {
+        Ln.d("loading current round");
+        if (round != null) {
+            this.currentRound = round;
+            this.currentTheme = currentRound.getSelectedTheme();
+
+            // set TextViews
+            roundStatusText.setText(currentRound.isActive() ? "Started" : "Not Started");
+            String themeStr;
+            if (currentTheme != null) {
+                themeStr = "Theme: " + currentTheme.getPhrase();
+            } else {
+                themeStr = "No Theme Selected";
+            }
+
+            themeText.setText(themeStr);
+        } else {
+            Ln.e("Round == null");
+        }
 
     }
 

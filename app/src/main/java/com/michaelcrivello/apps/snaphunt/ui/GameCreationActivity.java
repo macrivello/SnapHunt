@@ -104,12 +104,12 @@ public class GameCreationActivity extends BaseActivity {
                 Intent i = new Intent(GameCreationActivity.this, GameActivity.class);
                 i.putExtra(Constants.GAME_KEY, game);
                 startActivity(i);
-                overridePendingTransition(1,1);
+                overridePendingTransition(0,0);
             }
 
             @Override
             public void failure(RetrofitError error) {
-                Ln.e("Error starting new game");
+                Ln.e("Error starting new game", error);
             }
         });
     }

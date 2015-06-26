@@ -19,7 +19,7 @@ public class Game implements Serializable {
     int roundTimeLimit;
     int numberOfRounds;
     int currentRound;
-    List<Round> rounds;
+    List<ObjectId> rounds;
     // Setting players as ObjectIds temporarily since mongoose deep populate is not populating user.games.players
     List<ObjectId> players;
     Date timeCreated;
@@ -44,7 +44,7 @@ public class Game implements Serializable {
         return currentRound;
     }
 
-    public List<Round> getRounds() {
+    public List<ObjectId> getRounds() {
         return rounds;
     }
 

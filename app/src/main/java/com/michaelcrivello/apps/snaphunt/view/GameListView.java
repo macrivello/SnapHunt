@@ -65,7 +65,6 @@ public class GameListView extends LinearLayout {
         gameStatus.setText(game.isGameStarted() ? "Game Started" : "Waiting to start");
         gameIcon.setImageResource(R.drawable.ic_launcher);
 
-        getPlayersDigest();
     }
 
     private void getPlayersDigest() {

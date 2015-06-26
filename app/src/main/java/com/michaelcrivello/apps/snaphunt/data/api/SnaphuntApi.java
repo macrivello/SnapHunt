@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import com.google.gson.Gson;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
+import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
@@ -77,6 +78,8 @@ public interface SnaphuntApi {
     void getInvite(@Path("gameId") String gameId, Callback<List<Game>> callback);
 
     // Round
+    @GET("/games/{gameId}/rounds/{roundId}")
+    void getRound(@Path("gameId") String gameId, @Path("roundId")String roundId, Callback<Round> callback);
 
     // Photo
 

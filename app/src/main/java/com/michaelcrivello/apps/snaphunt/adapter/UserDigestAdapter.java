@@ -57,5 +57,6 @@ public class UserDigestAdapter extends BaseAdapter {
 
     public void loadUsers(List<UserDigest> userDigests) {
         this.userDigests = userDigests != null ? userDigests : Collections.<UserDigest>emptyList();
+        notifyDataSetChanged();
     }
 }

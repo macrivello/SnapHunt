@@ -67,6 +67,7 @@ public class S3TransferService extends RoboService {
             @Override
             protected TransferManager doWork() {
                 Ln.d("AWS Cred ID: " + sCredProvider.getIdentityId());
+                sCredProvider.refresh();
 
                 return transferManager = new TransferManager(sCredProvider);
             }
@@ -81,16 +82,7 @@ public class S3TransferService extends RoboService {
 
 
     private void refreshAwsCredentials(AWSTokenExpired awsTokenExpired) {
-        if (sCredProvider != null) {
-            Needle.onBackgroundThread().execute(new Runnable() {
-                @Override
-                public void run() {
-                    sCredProvider.refresh();
-                    Ln.d("posting new S3TransferManagerUpdated");
-                    bus.post(new S3TransferManagerUpdated(transferManager, awsTokenExpired));
-                }
-            });
-        }
+        initAwsServices();
     }
 
     @Override
