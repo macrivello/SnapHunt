@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import com.google.gson.Gson;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
 import com.michaelcrivello.apps.snaphunt.data.model.Round;
+import com.michaelcrivello.apps.snaphunt.data.model.Theme;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
@@ -52,21 +53,21 @@ public interface SnaphuntApi {
     void registerUser(@Body User user, Callback<User> cb);
 
     @POST("/login")
-    void loginUser(@Query("username") String username, @Query("password") String password, Callback<User> user);
+    void loginUser(@Query("username") String username, @Query("password") String password, Callback<User> cb);
 
     // UserDigest
     @GET("/userdigest/:id")
     void getUserDigest(@Path("id") String userId, Callback<UserDigest> cb);
 
     @GET("/userdigest")
-    void getUserDigestList(@Query("id") List<String> userDigestIds, Callback<List<UserDigest>> userDigestList);
+    void getUserDigestList(@Query("id") List<String> userDigestIds, Callback<List<UserDigest>> cb);
 
     // Game
     @GET("/games")
     void getGames(Callback<List<Game>> games);
 
     @POST("/games")
-    void createGame(@Body Game newGame, @Query("id") List<String> userDigestIds, Callback<Game> game);
+    void createGame(@Body Game newGame, @Query("id") List<String> userDigestIds, Callback<Game> cb);
 
     @GET("/games/{gameId}")
     void getGame(@Path("gameId") String gameId, Callback<Game> cb);
@@ -75,14 +76,24 @@ public interface SnaphuntApi {
     void getInvites(Callback<List<Game>> callback);
 
     @GET("/invites/{gameId}")
-    void getInvite(@Path("gameId") String gameId, Callback<List<Game>> callback);
+    void getInvite(@Path("gameId") String gameId, Callback<List<Game>> cb);
 
     // Round
     @GET("/games/{gameId}/rounds/{roundId}")
-    void getRound(@Path("gameId") String gameId, @Path("roundId")String roundId, Callback<Round> callback);
+    void getRound(@Path("gameId") String gameId, @Path("roundId")String roundId, Callback<Round> cb);
+
+    @PUT("/games/{gameId}/rounds/{roundId}")
+    void setThemeForRound(@Path("gameId") String gameId, @Path("roundId")String roundId, Callback<Theme> cb);
 
     // Photo
 
     // Theme
-    // TODO: Need to be able to pass arbitrary number of themes
+    @GET("/games/{gameId}/rounds/{roundId}/themes")
+    void getThemes(@Path("gameId") String gameId, @Path("roundId")String roundId, Callback<List<Theme>> cb);
+
+    @GET("/games/{gameId}/rounds/{roundId}/themes/{themeId}")
+    void getTheme(@Path("gameId") String gameId, @Path("roundId")String roundId, @Path("themeId")String themeId, Callback<Theme> cb);
+
+    @POST("/games/{gameId}/rounds/{roundId}/themes/{themeId}")
+    void selectTheme(@Path("gameId") String gameId, @Path("roundId")String roundId, @Path("themeId") String themeId, Callback<Round> cb);
 }

@@ -54,6 +54,7 @@ public class GameListView extends LinearLayout {
         gamePlayers = (TextView) findViewById(R.id.gamePlayersText);
 
         this.setGame(game);
+        getPlayersDigest();
     }
 
 
@@ -88,10 +89,11 @@ public class GameListView extends LinearLayout {
     private void updatePlayers(List<UserDigest> userDigests) {
         usersMap = new HashMap<ObjectId, UserDigest>();
         for (UserDigest ud : userDigests) {
+            Ln.d("adding user to playerslist: " + ud.getUsername());
             usersMap.put(ud.getId(), ud);
-            gamePlayers.append(ud.getUsername());
-        }
+            gamePlayers.append(ud.getUsername() + '\n');
 
+        }
     }
 
     public Game getGame() {

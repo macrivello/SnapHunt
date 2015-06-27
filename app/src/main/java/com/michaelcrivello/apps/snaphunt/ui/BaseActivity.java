@@ -2,6 +2,7 @@ package com.michaelcrivello.apps.snaphunt.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Pair;
 
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;

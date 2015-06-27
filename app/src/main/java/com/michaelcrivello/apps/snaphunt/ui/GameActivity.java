@@ -1,12 +1,14 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -49,7 +51,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -100,6 +106,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     private String selectedPhotoFilePath;
     private static final int IMAGE_SELECTED_CODE = 69;
     private static final int REQUEST_IMAGE_CAPTURE = 70;
+    private boolean themeSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +158,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         });
         // TODO: hit getRound endpoint to get round data.
 
-        gameStateCheck();
 
         roundNumberText.setText("Current Round: " + game.getCurrentRound());
 
@@ -175,22 +181,36 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         Ln.d("loading current round");
         if (round != null) {
             this.currentRound = round;
-            this.currentTheme = currentRound.getSelectedTheme();
+            loadThemeData(currentRound);
 
             // set TextViews
             roundStatusText.setText(currentRound.isActive() ? "Started" : "Not Started");
-            String themeStr;
-            if (currentTheme != null) {
-                themeStr = "Theme: " + currentTheme.getPhrase();
-            } else {
-                themeStr = "No Theme Selected";
-            }
 
-            themeText.setText(themeStr);
         } else {
             Ln.e("Round == null");
         }
 
+        gameStateCheck();
+
+    }
+
+    private void loadThemeData(Round round) {
+        if (round.getSelectedTheme() != null) {
+            snaphuntApi.getTheme(game.getGameIdAsString(), currentRound.getId().toHexString(), round.getSelectedTheme().toHexString(), new Callback<Theme>() {
+                @Override
+                public void success(Theme theme, Response response) {
+                    currentTheme = theme;
+                    themeText.setText("Theme: " + currentTheme.getPhrase());
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Ln.e(error, "Error getting round themes themes");
+                }
+            });
+        } else {
+            themeText.setText("No Theme Selected");
+        }
     }
 
     private void loadPlayList(Game game) {
@@ -217,12 +237,77 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     // Check the game_activity state and handle appropriately, such as prompting Theme selection.
     private void gameStateCheck() {
         // TODO: Check if user is Judge. Check if theme has been selected, if not then show overlay.
+        if (isJudge()) {
+            photoPreview.setImageDrawable(getDrawable(R.drawable.judge_display));
+
+            if (!isThemeSelected()) {
+                snaphuntApi.getThemes(game.getGameIdAsString(), currentRound.getId().toHexString(), new Callback<List<Theme>>() {
+                    @Override
+                    public void success(List<Theme> themes, Response response) {
+                        displayThemeSelection(themes);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Ln.e(error, "Error getting round themes");
+                    }
+                });
+             }
+        }
+    }
+
+    // TODO: need theme generation
+    public boolean isThemeSelected() {
+        return currentRound != null && currentRound.getSelectedTheme() != null;
+    }
+
+    // TODO: verify that judge is being set properly on backend
+    private boolean isJudge() {
+        String judgeId = currentRound != null ? currentRound.getJudge().toHexString() : "";
+        return userManager.getUserDigestId().equals(judgeId);
+    }
+
+    // TODO: Make a custom view for theme selector.
+    private void displayThemeSelection(List<Theme> themes) {
+        List<String> phrases = new ArrayList<>();
+        Stream.of(themes).forEach(t -> phrases.add(t.getPhrase()));
+
+        // TODO: Make theme adapter, pass in list of Themes
+        // temp using basic alertdialog
+        CharSequence[] themeArray = phrases.toArray(new CharSequence[themes.size()]);
+
+        // TODO: list adapter
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Pick a theme: ");
+        builder.setItems(themeArray, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Theme selectedTheme = themes.get(which);
+                Ln.d("Picked theme: " + selectedTheme.getPhrase());
+
+                themeSelected(selectedTheme);
+            }
+        });
+        builder.show();
     }
 
     @Override
     public void themeSelected(Theme theme) {
         // Make a network request to update the game_activity on the server that this rounds theme
         // has been selected. This will send push events to the players in the game_activity.
+        snaphuntApi.selectTheme(game.getGameIdAsString(), currentRound.getId().toHexString(), theme.getId().toHexString(), new Callback<Round>() {
+            @Override
+            public void success(Round round, Response response) {
+                Ln.d("Selelected theme for Round");
+                currentRound = round;
+                loadCurrentRound(currentRound);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Ln.e(error, "Error selecting theme for Round");
+            }
+        });
 
         // The Round object itself needs to be updated too. Round.selectedTheme.
 

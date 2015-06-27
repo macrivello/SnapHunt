@@ -16,11 +16,11 @@ public class Round {
     ObjectId id;
     int roundNumber;
     boolean active;
-    List<Theme> themes;
-    Theme selectedTheme;
-    UserDigest judge;
-    UserDigest winner;
-    Photo winningPhoto;
+    List<ObjectId> themes;
+    ObjectId selectedTheme;
+    ObjectId judge;
+    ObjectId winner;
+    ObjectId winningPhoto;
     Date timeCreated;
     Date timeLastModified;
     Date timeEnded;
@@ -35,23 +35,23 @@ public class Round {
         return active;
     }
 
-    public List<Theme> getThemes() {
+    public List<ObjectId> getThemes() {
         return themes;
     }
 
-    public Theme getSelectedTheme() {
+    public ObjectId getSelectedTheme() {
         return selectedTheme;
     }
 
-    public UserDigest getJudge() {
+    public ObjectId getJudge() {
         return judge;
     }
 
-    public UserDigest getWinner() {
+    public ObjectId getWinner() {
         return winner;
     }
 
-    public Photo getWinningPhoto() {
+    public ObjectId getWinningPhoto() {
         return winningPhoto;
     }
 

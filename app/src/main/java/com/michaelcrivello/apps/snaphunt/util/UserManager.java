@@ -2,6 +2,7 @@ package com.michaelcrivello.apps.snaphunt.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Pair;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -98,7 +99,14 @@ public class UserManager {
     // TODO: Make sure any pending changes are saved
     public void clearUser() {
         user = null;
-
         SharedPrefsUtil.sharedPreferences.edit().clear().apply();
+    }
+
+    public String getUserId() {
+        return user != null ? user.getId().toHexString() : "";
+    }
+
+    public String getUserDigestId() {
+        return user != null ? user.getUserDigest().toHexString() : "";
     }
 }
