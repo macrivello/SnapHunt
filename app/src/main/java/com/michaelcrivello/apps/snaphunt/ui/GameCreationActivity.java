@@ -92,6 +92,7 @@ public class GameCreationActivity extends BaseActivity {
         // Create Game. Route to Game Activity
         //TODO: Builder pattern for larger objects like Game?
         Game newGame = new Game();
+        newGame.setGameName(gameName.getText().toString().trim());
         newGame.setNumberOfRounds(Constants.NUMBER_OR_ROUNDS_DEFAULT);
         newGame.setRoundTimeLimit(Constants.ROUND_TIME_LIMIT);
 
@@ -104,7 +105,10 @@ public class GameCreationActivity extends BaseActivity {
                 Intent i = new Intent(GameCreationActivity.this, GameActivity.class);
                 i.putExtra(Constants.GAME_KEY, game);
                 startActivity(i);
-                overridePendingTransition(0,0);
+                overridePendingTransition(0, 0);
+
+                // Remove only this activity from stack
+                finish();
             }
 
             @Override

@@ -58,9 +58,12 @@ public class HomeActivity extends BaseActivity {
 
     private void initToolbar() {
         // Toolbar
+        String userHome = userManager.getUser().getUsername();
+        userHome.concat(" - " + getString(R.string.home));
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
-        toolbar.setSubtitle(R.string.home);
+        toolbar.setSubtitle(userHome);
         toolbar.inflateMenu(R.menu.home_menu);
 
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {

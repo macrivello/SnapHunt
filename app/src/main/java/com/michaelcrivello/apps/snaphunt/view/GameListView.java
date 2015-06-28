@@ -2,10 +2,8 @@ package com.michaelcrivello.apps.snaphunt.view;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
@@ -24,7 +22,6 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import roboguice.RoboGuice;
-import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
 /**
@@ -36,7 +33,7 @@ public class GameListView extends LinearLayout {
     HashMap<ObjectId, UserDigest> usersMap;
 
     ImageView gameIcon;
-    TextView gameId;
+    TextView gameName;
     TextView gameStatus;
     TextView gamePlayers;
 
@@ -49,7 +46,7 @@ public class GameListView extends LinearLayout {
         inflater.inflate(R.layout.game_list_item, this);
 
         gameIcon = (ImageView) findViewById(R.id.gameIcon);
-        gameId = (TextView) findViewById(R.id.gameIdText);
+        gameName = (TextView) findViewById(R.id.gameIdText);
         gameStatus = (TextView) findViewById(R.id.gameStatusText);
         gamePlayers = (TextView) findViewById(R.id.gamePlayersText);
 
@@ -61,8 +58,8 @@ public class GameListView extends LinearLayout {
     public void setGame(Game game) {
         this.game = game;
         String gameid = game.getGameIdAsString();
-        String gameName = "Game: " + gameid.substring(gameid.length() - 5);
-        gameId.setText(gameName);
+        String gameName = "Game: " + game.getGameName();
+        this.gameName.setText(gameName);
         gameStatus.setText(game.isGameStarted() ? "Game Started" : "Waiting to start");
         gameIcon.setImageResource(R.drawable.ic_launcher);
 

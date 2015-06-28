@@ -16,6 +16,7 @@ public class Game implements Serializable {
 
 
     ObjectId _id;
+    String gameName;
     int roundTimeLimit;
     int numberOfRounds;
     int currentRound;
@@ -82,5 +83,13 @@ public class Game implements Serializable {
 
     public void setPlayers(List<ObjectId> players) {
         this.players = players;
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
     }
 }

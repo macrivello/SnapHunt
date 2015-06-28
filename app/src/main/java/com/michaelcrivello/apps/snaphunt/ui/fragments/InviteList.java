@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
+import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.adapter.GameListAdapter;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
@@ -18,6 +19,7 @@ import com.michaelcrivello.apps.snaphunt.ui.GameActivity;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.view.GameListView;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -41,6 +43,7 @@ public class InviteList extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        inviteListAdapter = new GameListAdapter(SnaphuntApp.getInstance(), Collections.<Game>emptyList());
     }
 
     @Override
