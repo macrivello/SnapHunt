@@ -1,6 +1,5 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,8 +18,6 @@ import android.widget.Toast;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressListener;
-import com.amazonaws.mobileconnectors.s3.transfermanager.Download;
-import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.mobileconnectors.s3.transfermanager.model.UploadResult;
 import com.annimon.stream.Collectors;
@@ -37,7 +34,6 @@ import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
 import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
 import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
 import com.michaelcrivello.apps.snaphunt.event.S3PhotoUpload;
-import com.michaelcrivello.apps.snaphunt.event.S3TransferManagerUpdated;
 import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.ThemeSelection;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
@@ -51,16 +47,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import needle.Needle;
-import needle.UiRelatedTask;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -169,7 +160,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         playersListView.addHeaderView(header, null, false);
 
         // Setup Adapter
-        loadPlayList(game);
+        loadPlayerList(game);
 
         // Photo
         // Disable submit button when there is no photo selected to upload
@@ -195,10 +186,12 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     }
 
     private void loadThemeData(Round round) {
+        Ln.d("loading theme data");
         if (round.getSelectedTheme() != null) {
             snaphuntApi.getTheme(game.getGameIdAsString(), currentRound.getId().toHexString(), round.getSelectedTheme().toHexString(), new Callback<Theme>() {
                 @Override
                 public void success(Theme theme, Response response) {
+                    Ln.d("get selectedtheme");
                     currentTheme = theme;
                     themeText.setText("Theme: " + currentTheme.getPhrase());
                 }
@@ -213,7 +206,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         }
     }
 
-    private void loadPlayList(Game game) {
+    private void loadPlayerList(Game game) {
         // Playing around with Java 8 Streams, Lambdas. ('::' - Method Reference)
         Stream<ObjectId> userIdsAsObjects = Stream.of(game.getPlayers());
         List<String> userIds = userIdsAsObjects
@@ -223,6 +216,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         snaphuntApi.getUserDigestList(userIds, new Callback<List<UserDigest>>() {
             @Override
             public void success(List<UserDigest> userDigests, Response response) {
+                Ln.d("got player list");
                 gamePlayersAdapter.loadUsers(userDigests);
             }
 
@@ -237,6 +231,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     // Check the game_activity state and handle appropriately, such as prompting Theme selection.
     private void gameStateCheck() {
         // TODO: Check if user is Judge. Check if theme has been selected, if not then show overlay.
+        Ln.d("game state check");
         if (isJudge()) {
             photoPreview.setImageDrawable(getDrawable(R.drawable.judge_display));
 
@@ -264,7 +259,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     // TODO: verify that judge is being set properly on backend
     private boolean isJudge() {
         String judgeId = currentRound != null ? currentRound.getJudge().toHexString() : "";
-        return userManager.getUserDigestId().equals(judgeId);
+        return userManager.getUserId().equals(judgeId);
     }
 
     // TODO: Make a custom view for theme selector.

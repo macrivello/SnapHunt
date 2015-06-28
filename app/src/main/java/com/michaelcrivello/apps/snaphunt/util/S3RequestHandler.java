@@ -77,7 +77,7 @@ public class S3RequestHandler extends RequestHandler {
 
     @Override
     public Result load(Request request, int networkPolicy) throws IOException {
-        Ln.d("Load");
+        Ln.d("loading: " + request.uri);
         String bucket = "", key = "";
         List<String> pathSegments = request.uri.getPathSegments();
 

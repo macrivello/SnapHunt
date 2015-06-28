@@ -6,7 +6,7 @@ import org.bson.types.ObjectId;
  * Created by michael on 3/22/15.
  */
 public class Theme {
-    ObjectId id;
+    ObjectId _id;
     String phrase;
 
     // TODO: Update with an analytics object, or something to handle analytics better.
@@ -16,7 +16,7 @@ public class Theme {
     int neutrals;
 
     public ObjectId getId() {
-        return id;
+        return _id;
     }
 
     public String getPhrase() {

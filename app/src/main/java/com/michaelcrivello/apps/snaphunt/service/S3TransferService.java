@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.auth.AWSBasicCognitoIdentityProvider;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.auth.CognitoCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
@@ -23,6 +24,7 @@ import com.squareup.otto.Subscribe;
 import com.squareup.otto.Produce;
 
 import java.io.File;
+import java.util.logging.Handler;
 
 import needle.Needle;
 import needle.UiRelatedTask;
@@ -37,8 +39,12 @@ public class S3TransferService extends RoboService {
     @Inject SnaphuntApp snaphuntApp;
     @Inject TransferManager transferManager;
     private CognitoCredentialsProvider sCredProvider;
+    private CognitoCredentialsProvider cognitoCredentialsProvider;
 
     private Context context;
+
+    Runnable refreshCredentials, postTransferManager;
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -54,30 +60,41 @@ public class S3TransferService extends RoboService {
         initAwsServices();
     }
 
+
+
     private void initAwsServices() {
-        if(sCredProvider == null) {
-                sCredProvider = new CognitoCachingCredentialsProvider(
-                        context,
-                        Constants.COGNITO_POOL_ID,    /* Identity Pool ID */
-                        Constants.AWS_REGION           /* Region */
-                );
+//        if(sCredProvider == null) {
+//                sCredProvider = new CognitoCachingCredentialsProvider(
+//                        context,
+//                        Constants.COGNITO_POOL_ID,    /* Identity Pool ID */
+//                        Constants.AWS_REGION           /* Region */
+//                );
+//        }
+
+        if (cognitoCredentialsProvider == null) {
+            cognitoCredentialsProvider = new CognitoCredentialsProvider(Constants.COGNITO_POOL_ID, Constants.AWS_REGION);
         }
 
-        Needle.onBackgroundThread().execute(new UiRelatedTask<TransferManager>() {
-            @Override
-            protected TransferManager doWork() {
-                Ln.d("AWS Cred ID: " + sCredProvider.getIdentityId());
-                sCredProvider.refresh();
-
-                return transferManager = new TransferManager(sCredProvider);
-            }
-
-            @Override
-            protected void thenDoUiRelatedWork(TransferManager transferManager) {
-                Ln.d("posting new S3TransferManagerUpdated");
-                 bus.post(new S3TransferManagerUpdated(transferManager, null));
-            }
-        });
+        transferManager = new TransferManager(cognitoCredentialsProvider);
+        bus.post(new S3TransferManagerUpdated(transferManager, null));
+//        Needle.onBackgroundThread().execute(new UiRelatedTask<TransferManager>() {
+//            @Override
+//            protected TransferManager doWork() {
+////                Ln.d("AWS Cred ID: " + sCredProvider.getIdentityId());
+////                sCredProvider.refresh();
+//
+////                return transferManager = new TransferManager(sCredProvider);
+////                cognitoCredentialsProvider.refresh();
+//
+//                return transferManager = new TransferManager(cognitoCredentialsProvider);
+//            }
+//
+//            @Override
+//            protected void thenDoUiRelatedWork(TransferManager transferManager) {
+//                Ln.d("posting new S3TransferManagerUpdated");
+//                bus.post(new S3TransferManagerUpdated(transferManager, null));
+//            }
+//        });
     }
 
 

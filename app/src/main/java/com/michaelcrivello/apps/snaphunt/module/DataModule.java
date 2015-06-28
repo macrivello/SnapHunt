@@ -46,7 +46,7 @@ public class DataModule extends AbstractModule {
                 .listener(new Picasso.Listener() {
                     @Override
                     public void onImageLoadFailed(Picasso picasso, Uri uri, Exception e) {
-                        Ln.e(e, "Failed to load image: %s", uri);
+                        Ln.e("Failed to load image: %s\n" + e.getMessage(), uri);
                     }
                 })
                 .addRequestHandler(provideS3RequestHandler(app, bus, client))

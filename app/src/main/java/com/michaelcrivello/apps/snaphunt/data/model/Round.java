@@ -13,7 +13,7 @@ import java.util.List;
 
 // Rounds always returned with populated fields?
 public class Round {
-    ObjectId id;
+    ObjectId _id;
     int roundNumber;
     boolean active;
     List<ObjectId> themes;
@@ -28,7 +28,7 @@ public class Round {
     boolean allPhotosSubmitted;
 
     public ObjectId getId() {
-        return id;
+        return _id;
     }
 
     public boolean isActive() {
