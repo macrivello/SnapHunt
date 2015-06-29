@@ -111,18 +111,22 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         Intent intent = getIntent();
         Game intentGame;
         if ((intentGame = (Game) intent.getSerializableExtra(Constants.GAME_KEY)) != null) {
-            if (intent.hasExtra(Constants.ACCEPTING_INVITE))
-                acceptInvitation(intentGame);
-
-
-            loadGameData(intentGame);
+            if (intent.hasExtra(Constants.ACCEPTING_INVITE)) {
+                acceptInvitation(intentGame.getGameIdAsString());
+            } else {
+                loadGameData(intentGame);
+            }
         } else {
-            getGameData(getGameIdFromIntent());
+            if (intent.hasExtra(Constants.ACCEPTING_INVITE)) {
+                acceptInvitation(getGameIdFromIntent());
+            } else {
+                getGameData(getGameIdFromIntent());
+            }
         }
     }
 
-    private void acceptInvitation(Game intentGame) {
-        snaphuntApi.acceptInvite(intentGame.getGameIdAsString(), new Callback<Game>() {
+    private void acceptInvitation(String gameId) {
+        snaphuntApi.acceptInvite(gameId, new Callback<Game>() {
             @Override
             public void success(Game game, Response response) {
                 Ln.d("Accepted game invite, updating game");
@@ -170,7 +174,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         // TODO: hit getRound endpoint to get round data.
 
 
-        roundNumberText.setText("Current Round: " + game.getCurrentRound());
+        roundNumberText.setText("Current Round: " + game.getCurrentRound() + 1);
 
         // Add Header
         View header = getLayoutInflater().inflate(R.layout.listview_header, playersListView, false);
@@ -280,7 +284,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     // TODO: verify that judge is being set properly on backend
     private boolean isJudge() {
         String judgeId = currentRound != null ? currentRound.getJudge().toHexString() : "";
-        return userManager.getUserId().equals(judgeId);
+        return userManager.getUserDigestId().equals(judgeId);
     }
 
     // TODO: Make a custom view for theme selector.
