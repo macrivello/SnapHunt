@@ -174,7 +174,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         // TODO: hit getRound endpoint to get round data.
 
 
-        roundNumberText.setText("Current Round: " + game.getCurrentRound() + 1);
+        roundNumberText.setText("Current Round: " + (game.getCurrentRound() + 1));
 
         // Add Header
         View header = getLayoutInflater().inflate(R.layout.listview_header, playersListView, false);
@@ -273,6 +273,9 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                     }
                 });
              }
+        } else {
+            // TODO: Load image of submitted photo
+            photoPreview.setImageDrawable(getDrawable(R.drawable.logo_transparent));
         }
     }
 
