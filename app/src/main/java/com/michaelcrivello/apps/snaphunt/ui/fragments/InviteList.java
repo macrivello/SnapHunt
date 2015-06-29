@@ -77,6 +77,7 @@ public class InviteList extends BaseFragment {
                 // via interface method.
                 // TODO: Make network request to 'accept' invite
                 Intent i = new Intent(getActivity(), GameActivity.class);
+                i.putExtra(Constants.ACCEPTING_INVITE, true);
                 i.putExtra(Constants.GAME_ID_KEY, game != null ? game.getGameIdAsString() : "");
 
                 startActivity(i);

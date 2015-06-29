@@ -76,7 +76,10 @@ public interface SnaphuntApi {
     void getInvites(Callback<List<Game>> callback);
 
     @GET("/invites/{gameId}")
-    void getInvite(@Path("gameId") String gameId, Callback<List<Game>> cb);
+    void getInvite(@Path("gameId") String gameId, Callback<Game> cb);
+
+    @GET("/invites/{gameId}/accept")
+    void acceptInvite(@Path("gameId") String gameId, Callback<Game> cb);
 
     // Round
     @GET("/games/{gameId}/rounds/{roundId}")

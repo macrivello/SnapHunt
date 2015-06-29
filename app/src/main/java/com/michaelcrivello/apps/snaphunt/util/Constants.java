@@ -38,6 +38,7 @@ public class Constants {
     // Intent Bundle Keys
     public static final String GAME_ID_KEY = "GAME_ID_KEY";
     public static final String GAME_KEY = "GAME_KEY";
+    public static final String ACCEPTING_INVITE = "ACCEPTING_INVITE";
 
 
     // Game Related

@@ -73,11 +73,12 @@ public class GameList extends BaseFragment {
                 // Launch new activity with Game
                 GameListView selectedGameView = (GameListView) view;
                 Game game = selectedGameView.getGame();
+                String gameId = game.getGameIdAsString();
 
                 // TODO: dont launch activities from fragments... communicate to parent activity
                 // via interface method.
                 Intent i = new Intent(getActivity(), GameActivity.class);
-                i.putExtra(Constants.GAME_ID_KEY, game != null ? game.getGameIdAsString() : "");
+                i.putExtra(Constants.GAME_ID_KEY, gameId);
 
                 startActivity(i);
             }

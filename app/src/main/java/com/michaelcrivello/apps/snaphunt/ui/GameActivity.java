@@ -108,12 +108,32 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         gamePlayersAdapter = new UserDigestAdapter(this);
         gameEventListener = new GameEventListener();
 
+        Intent intent = getIntent();
         Game intentGame;
-        if ((intentGame = (Game) getIntent().getSerializableExtra(Constants.GAME_KEY)) != null) {
+        if ((intentGame = (Game) intent.getSerializableExtra(Constants.GAME_KEY)) != null) {
+            if (intent.hasExtra(Constants.ACCEPTING_INVITE))
+                acceptInvitation(intentGame);
+
+
             loadGameData(intentGame);
         } else {
             getGameData(getGameIdFromIntent());
         }
+    }
+
+    private void acceptInvitation(Game intentGame) {
+        snaphuntApi.acceptInvite(intentGame.getGameIdAsString(), new Callback<Game>() {
+            @Override
+            public void success(Game game, Response response) {
+                Ln.d("Accepted game invite, updating game");
+                loadGameData(game);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Ln.e("Error accepting invite", error);
+            }
+        });
     }
 
     @Override
@@ -211,6 +231,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         Stream<ObjectId> userIdsAsObjects = Stream.of(game.getPlayers());
         List<String> userIds = userIdsAsObjects
                 .map(ObjectId::toHexString)
+                .filter(id -> !id.equals(userManager.getUserDigestId()))
                 .collect(Collectors.toList());
 
         snaphuntApi.getUserDigestList(userIds, new Callback<List<UserDigest>>() {

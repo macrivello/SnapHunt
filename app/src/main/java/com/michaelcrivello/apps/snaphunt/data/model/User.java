@@ -15,7 +15,7 @@ public class User {
     String username;
     String authToken;
     String gcmRegId;
-    String profilePhoto;
+    ObjectId profilePhoto;
     String password;
     String provider;
     String providerId;
@@ -43,7 +43,7 @@ public class User {
         this.gcmRegId = gcmRegId;
     }
 
-    public void setProfilePhoto(String profilePhoto) {
+    public void setProfilePhoto(ObjectId profilePhoto) {
         this.profilePhoto = profilePhoto;
     }
 
@@ -71,7 +71,7 @@ public class User {
         return gcmRegId;
     }
 
-    public String getProfilePhoto() {
+    public ObjectId getProfilePhoto() {
         return profilePhoto;
     }
 

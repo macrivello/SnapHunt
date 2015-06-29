@@ -68,16 +68,16 @@ public class RegisterActivity extends BaseActivity {
         String gcmRegId;
 
         // TODO: Refactor
-        if (!InputValidator.isValid(username, InputValidator.INPUT_TYPE.USERNAME)) {
-            Toast.makeText(this, R.string.valid_username, Toast.LENGTH_LONG).show();
-            return;
-        } else if (!InputValidator.isValid(email, InputValidator.INPUT_TYPE.EMAIL)) {
-            Toast.makeText(this, R.string.valid_email, Toast.LENGTH_LONG).show();
-            return;
-        } else if (!InputValidator.isValid(password, InputValidator.INPUT_TYPE.PASSWORD)) {
-            Toast.makeText(this, R.string.valid_password, Toast.LENGTH_LONG).show();
-            return;
-        }
+//        if (!InputValidator.isValid(username, InputValidator.INPUT_TYPE.USERNAME)) {
+//            Toast.makeText(this, R.string.valid_username, Toast.LENGTH_LONG).show();
+//            return;
+//        } else if (!InputValidator.isValid(email, InputValidator.INPUT_TYPE.EMAIL)) {
+//            Toast.makeText(this, R.string.valid_email, Toast.LENGTH_LONG).show();
+//            return;
+//        } else if (!InputValidator.isValid(password, InputValidator.INPUT_TYPE.PASSWORD)) {
+//            Toast.makeText(this, R.string.valid_password, Toast.LENGTH_LONG).show();
+//            return;
+//        }
 
         // TODO: I need to ensure as best as possible that they can have GCM enabled and a reg id
         gcmRegId = GcmUtil.getRegistrationId();
@@ -107,7 +107,7 @@ public class RegisterActivity extends BaseActivity {
                         userManager.setUser(user);
 
 //                        Toast.makeText(Register.this, "Successfully Registered. Welcome.", Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(SnaphuntApp.getInstance(), SampleActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK |  Intent.FLAG_ACTIVITY_NEW_TASK));
+                        startActivity(new Intent(SnaphuntApp.getInstance(), HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK |  Intent.FLAG_ACTIVITY_NEW_TASK));
                     }
 
                     @Override
