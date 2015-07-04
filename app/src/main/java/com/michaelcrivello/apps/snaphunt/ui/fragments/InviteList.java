@@ -2,6 +2,7 @@ package com.michaelcrivello.apps.snaphunt.ui.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,16 +35,29 @@ import roboguice.util.Ln;
  */
 public class InviteList extends BaseFragment {
     protected static final String TITLE = "Invites";
+    private static final long INVITE_LIST_REFRESH_INTERVAL = 5000;
     @Inject SnaphuntApi snaphuntApi;
     ListView invitesListView;
     GameListAdapter inviteListAdapter;
     ViewGroup emptyListOverlay;
     TextView emptyText;
 
+    Handler inviteListPollingHandler;
+    Runnable inviteListPollingRunnable;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         inviteListAdapter = new GameListAdapter(SnaphuntApp.getInstance(), Collections.<Game>emptyList());
+
+        inviteListPollingHandler = new Handler();
+        inviteListPollingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                loadInvitesList();
+                inviteListPollingHandler.postDelayed(this, INVITE_LIST_REFRESH_INTERVAL);
+            }
+        };
     }
 
     @Override
@@ -62,7 +76,18 @@ public class InviteList extends BaseFragment {
 
         invitesListView.setAdapter(inviteListAdapter);
         setListListener();
-        loadInvitesList();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        inviteListPollingHandler.post(inviteListPollingRunnable);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        inviteListPollingHandler.removeCallbacksAndMessages(null);
     }
 
     private void setListListener() {
@@ -91,12 +116,8 @@ public class InviteList extends BaseFragment {
             @Override
             public void success(List<Game> games, Response response) {
                 Ln.d("Loading %d game_activity invites into list.", games.size());
-                if (games.size() == 0) {
-                    showEmptyListOverlay(true);
-                } else {
-                    showEmptyListOverlay(false);
-                    inviteListAdapter.setGames(games);
-                }
+                showEmptyListOverlay(games.size() == 0);
+                inviteListAdapter.setGames(games);
             }
 
             @Override

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import com.google.gson.Gson;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
+import com.michaelcrivello.apps.snaphunt.data.model.Photo;
 import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.Theme;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
@@ -89,6 +90,17 @@ public interface SnaphuntApi {
     void setThemeForRound(@Path("gameId") String gameId, @Path("roundId")String roundId, Callback<Theme> cb);
 
     // Photo
+    @GET("/photo/{photoId}")
+    void getPhoto(@Path("photoId")String photoId, Callback<Photo> cb);
+
+    @GET("/games/{gameId}/rounds/{roundId}/photo/")
+    void getPhotoFromUserDigestId(@Path("gameId") String gameId, @Path("roundId")String roundId, @Query("udid")String userDigestId, Callback<Photo> cb);
+
+    @GET("/games/{gameId}/rounds/{roundId}/photo/{photoId}/winner")
+    void submitWinner(@Path("gameId") String gameId, @Path("roundId")String roundId, @Path("photoId")String photoId, Callback<Void> cb);
+
+    @POST("/games/{gameId}/rounds/{roundId}/photo")
+    void submitPhoto(@Body Photo photo, @Path("gameId") String gameId, @Path("roundId")String roundId, Callback<Photo> cb);
 
     // Theme
     @GET("/games/{gameId}/rounds/{roundId}/themes")

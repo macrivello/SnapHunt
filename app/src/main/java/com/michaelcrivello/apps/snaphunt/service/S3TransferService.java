@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.auth.AWSBasicCognitoIdentityProvider;
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.auth.CognitoCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
@@ -17,17 +15,14 @@ import com.michaelcrivello.apps.snaphunt.event.AWSTokenExpired;
 import com.michaelcrivello.apps.snaphunt.event.S3PhotoDownload;
 import com.michaelcrivello.apps.snaphunt.event.S3PhotoUpload;
 import com.michaelcrivello.apps.snaphunt.event.S3TransferManagerUpdated;
-import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
+import com.michaelcrivello.apps.snaphunt.event.S3Upload;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.otto.Produce;
 
 import java.io.File;
-import java.util.logging.Handler;
 
-import needle.Needle;
-import needle.UiRelatedTask;
 import roboguice.service.RoboService;
 import roboguice.util.Ln;
 
@@ -118,8 +113,8 @@ public class S3TransferService extends RoboService {
     /*
         Post events
      */
-    public void postUpload(Upload upload, File file) {
-        bus.post(new S3UploadUpload(upload, file));
+    public void postUpload(Upload upload, File file, String bucket, String key) {
+        bus.post(new S3Upload(upload, file, bucket, key));
     }
 
     /*
@@ -128,10 +123,16 @@ public class S3TransferService extends RoboService {
     @Subscribe
     public void onRoundPhotoUpload(S3PhotoUpload roundPhotoUpload) {
         File file = roundPhotoUpload.getPhoto();
+
         if (file == null) {
             Ln.e("File to upload was null.");
             return;
         }
+
+        String key = Constants.PHOTO_UPLOAD_FOLDER + "/" + file.getName();
+        String bucket = Constants.BUCKET_NAME;
+
+
 
         Ln.d("onRoundPhotoUpload. File: " + file.getName());
 
@@ -139,11 +140,12 @@ public class S3TransferService extends RoboService {
         // userid-gameid-roundid-theme;
         Upload upload = null;
         try{
-            upload = transferManager.upload(Constants.BUCKET_NAME, Constants.PHOTO_UPLOAD_FOLDER + "/" + file.getName(), file);
+            upload = transferManager.upload(bucket, key, file);
         } catch (AmazonClientException e) {
             Ln.e("Error uploading file: " + file.getName() + ". Error: " + e.getMessage());
         }
-        postUpload(upload, file);
+        Ln.d("starting upload: " + upload.getDescription());
+        postUpload(upload, file, bucket, key);
     }
 
     @Subscribe

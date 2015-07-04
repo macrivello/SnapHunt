@@ -57,10 +57,9 @@ public class GameListView extends LinearLayout {
 
     public void setGame(Game game) {
         this.game = game;
-        String gameid = game.getGameIdAsString();
         String gameName = "Game: " + game.getGameName();
         this.gameName.setText(gameName);
-        gameStatus.setText(game.isGameStarted() ? "Game Started" : "Waiting to start");
+        gameStatus.setText(game.getState());
         gameIcon.setImageResource(R.drawable.ic_launcher);
 
     }

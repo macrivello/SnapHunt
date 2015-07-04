@@ -38,6 +38,16 @@
     <string name="invitePlayersTitle">Invite Players</string>
     <string name="startGame">Start Game</string>
     <string name="empty_invite_list">You have no Invites.</string>
+    <string name="pick_winner">Pick as Winning Photo</string>
+    <string name="gameNotStarted">Game Not Started</string>
+    <string name="roundNotStarted">Wating for players to join...</string>
+    <string name="needToSubmitPhoto">Submit a photo!</string>
+    <string name="waitingForPhotos">You are Judge. Waiting for Player Photos...</string>
+    <string name="waitingForJudge">Waiting for Judge to Pick Photo...</string>
+    <string name="roundEnded">Round Ended</string>
+    <string name="selectAPhoto">Select a Winning Photo...</string>
+    <string name="waitingForTheme">Waiting For Theme Selection...</string>
+    <string name="judgePickTheme">Select Theme!</string>
 
 
 </resources>

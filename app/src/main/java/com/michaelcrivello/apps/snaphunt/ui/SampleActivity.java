@@ -18,7 +18,7 @@ import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.event.GcmMessage;
 import com.michaelcrivello.apps.snaphunt.event.S3PhotoUpload;
-import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
+import com.michaelcrivello.apps.snaphunt.event.S3Upload;
 import com.pnikosis.materialishprogress.ProgressWheel;
 import com.squareup.otto.Subscribe;
 
@@ -199,10 +199,10 @@ public class SampleActivity extends BaseActivity {
     }
 
     @Subscribe
-    public void onS3Upload(S3UploadUpload s3UploadUpload) {
+    public void onS3Upload(S3Upload s3Upload) {
         Ln.d("onS3Upload");
-        Upload upload = s3UploadUpload.getUpload();
-        File file = s3UploadUpload.getUploadedFile();
+        Upload upload = s3Upload.getUpload();
+        File file = s3Upload.getUploadedFile();
 
 
         upload.addProgressListener(new S3UploadProgressListener(upload, file));

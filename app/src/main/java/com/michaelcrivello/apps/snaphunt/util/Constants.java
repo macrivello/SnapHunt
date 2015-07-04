@@ -44,6 +44,7 @@ public class Constants {
     // Game Related
     public static final int NUMBER_OR_ROUNDS_DEFAULT = 10;
     public static final int ROUND_TIME_LIMIT = 720; // 720 minutes == 12 hours
+    public static final int MAX_USERS_PER_GAME = 10; // For Selectable adapter
 
 
 }

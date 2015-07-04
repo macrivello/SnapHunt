@@ -39,7 +39,7 @@
         android:layout_height="0dp"
         android:layout_weight="3">
 
-        <ImageView
+        <com.michaelcrivello.apps.snaphunt.view.PhotoImageView
             android:id="@+id/photoPreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -48,13 +48,27 @@
             android:layout_margin="5dp"
             android:scaleType="centerInside"
             android:background="@drawable/rounded_rectangle"
+            android:src="@drawable/logo_transparent"
+            />
+
+        <TextView
+            android:id="@+id/stateInfoText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="180dp"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:textColor="@color/ColorPrimary"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:background="@color/background_material_light"
             />
 
         <com.pnikosis.materialishprogress.ProgressWheel
             android:id="@+id/progress_wheel"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            wheel:matProg_barColor="#5588FF"
+            wheel:matProg_barColor="@color/ColorPrimary"
             wheel:matProg_progressIndeterminate="false"
             android:visibility="invisible"
             android:layout_gravity="center"
@@ -99,12 +113,20 @@
             android:onClick="selectPhoto"
         />
         <Button
+            android:id="@+id/gameJudgeSelectPhotoButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Test Download"
-            android:id="@+id/testDownloadbutton"
-            android:onClick="testDownload"
-            />
+            android:onClick="onWinningPhotoSubmit"
+            android:text="@string/pick_winner"
+            android:visibility="gone"
+            android:enabled="false"/>
     </LinearLayout>
 
+    <!-- Placeholder for full screen image-->
+    <com.michaelcrivello.apps.snaphunt.view.PhotoImageView
+        android:id="@+id/gameFullscreenImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"
+        android:visibility="gone"/>
 </LinearLayout>

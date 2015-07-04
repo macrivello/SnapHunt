@@ -16,6 +16,7 @@ import com.michaelcrivello.apps.snaphunt.adapter.SelectableUserDigestAdapter;
 import com.michaelcrivello.apps.snaphunt.adapter.UserDigestAdapter;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
 import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
+import com.michaelcrivello.apps.snaphunt.exception.TooManyItemsSelectedException;
 import com.michaelcrivello.apps.snaphunt.misc.Selectable;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.view.UserDigestListItemView;
@@ -48,7 +49,7 @@ public class GameCreationActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_create_activity);
 
-        selectableUserDigestAdapter = new SelectableUserDigestAdapter(this);
+        selectableUserDigestAdapter = new SelectableUserDigestAdapter(this, Constants.MAX_USERS_PER_GAME - 1);
         initPlayerList();
     }
 
@@ -74,10 +75,14 @@ public class GameCreationActivity extends BaseActivity {
                 SelectableUserDigestAdapter adapter = ((SelectableUserDigestAdapter)parent.getAdapter());
                 Selectable item = adapter.getSelectable(itemView.getUser().getId().toHexString());
 
-                adapter.setSelected(item, !item.isSelected());
-                itemView.setActivated(item.isSelected());
-
-                Ln.d("user: " + (((UserDigestListItemView) view).getUser()).getUsername() + " selected: " + item.isSelected());
+                try {
+                    adapter.setSelected(item, !item.isSelected());
+                    itemView.setActivated(item.isSelected());
+                    Ln.d("user: " + (((UserDigestListItemView) view).getUser()).getUsername() + " selected: " + item.isSelected());
+                } catch (TooManyItemsSelectedException e) {
+                    Ln.d("Too many items selected in list");
+                    Toast.makeText(context, "Only " + adapter.getMaxSelection() + " Players Allowed.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

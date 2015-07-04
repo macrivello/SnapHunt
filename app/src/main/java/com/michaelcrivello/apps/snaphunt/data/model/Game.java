@@ -1,5 +1,7 @@
 package com.michaelcrivello.apps.snaphunt.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import org.bson.types.ObjectId;
 
 import java.io.Serializable;
@@ -21,13 +23,26 @@ public class Game implements Serializable {
     int numberOfRounds;
     int currentRound;
     List<ObjectId> rounds;
-    // Setting players as ObjectIds temporarily since mongoose deep populate is not populating user.games.players
     List<ObjectId> players;
+    List<ObjectId> playersJoined;
     Date timeCreated;
     Date timeLastModified;
     Date timeEnded;
-    boolean gameOver;
-    boolean gameStarted;
+//    @SerializedName("state")
+    String state;
+
+    public enum GameState {
+        @SerializedName("NOT_STARTED")
+        NOT_STARTED,
+        @SerializedName("STARTED")
+        STARTED,
+        @SerializedName("ENDED")
+        ENDED
+    }
+
+    public String getState() {
+        return state;
+    }
 
     public String getGameIdAsString() {
         return _id.toHexString();
@@ -63,14 +78,6 @@ public class Game implements Serializable {
 
     public Date getTimeEnded() {
         return timeEnded;
-    }
-
-    public boolean isGameOver() {
-        return gameOver;
-    }
-
-    public boolean isGameStarted() {
-        return gameStarted;
     }
 
     public void setRoundTimeLimit(int roundTimeLimit) {

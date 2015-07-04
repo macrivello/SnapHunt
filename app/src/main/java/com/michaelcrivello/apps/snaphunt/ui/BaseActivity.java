@@ -1,12 +1,10 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Pair;
 
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
-import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
-import com.google.android.gms.common.api.Api;
 import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.data.api.ApiHeaders;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
@@ -14,18 +12,13 @@ import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
 import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
 import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
 import com.michaelcrivello.apps.snaphunt.event.S3TransferManagerUpdated;
-import com.michaelcrivello.apps.snaphunt.event.S3UploadUpload;
+import com.michaelcrivello.apps.snaphunt.event.S3Upload;
 import com.michaelcrivello.apps.snaphunt.util.GcmUtil;
 import com.michaelcrivello.apps.snaphunt.util.UserManager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import java.io.File;
-
 import roboguice.activity.RoboActionBarActivity;
-import roboguice.activity.RoboActivity;
-import roboguice.activity.RoboFragmentActivity;
-import roboguice.fragment.RoboFragment;
 import roboguice.util.Ln;
 
 /**
@@ -38,10 +31,12 @@ public class BaseActivity extends RoboActionBarActivity {
     @Inject UserManager userManager;
     BaseActivityBusListener baseListener;
     TransferManager transferManager;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.context = getBaseContext();
         baseListener = new BaseActivityBusListener();
     }
 
@@ -78,33 +73,6 @@ public class BaseActivity extends RoboActionBarActivity {
         }
     }
 
-////    protected class GameEventListener {
-//        // Event Subscription
-//    @Subscribe
-//    public void onPhotoReady(PhotoReadyForSubmit photoReadyForSubmit){
-//        Ln.d("onPhotoReady");
-//
-//        handlePhotoReady(photoReadyForSubmit);
-//    }
-//    @Subscribe
-//    public void onS3Upload(S3UploadUpload s3UploadUpload){
-//        Ln.d("onS3Upload");
-//
-//        handleS3Upload(s3UploadUpload);
-//    }
-////    }
-
-    protected void handleS3Upload(S3UploadUpload s3UploadUpload) {
-        // This method is meant to be Overriden by child activity
-        Ln.d("handleS3Upload");
-
-    }
-
-    protected void handlePhotoReady(PhotoReadyForSubmit photoReadyForSubmit) {
-        // This method is meant to be Overriden by child activity
-        Ln.d("handlePhotoReady");
-    }
-
     protected void logout() {
         userManager.clearUser();
         startActivity(new Intent(this, WelcomeActivity.class));
@@ -118,7 +86,7 @@ public class BaseActivity extends RoboActionBarActivity {
 //        handlePhotoReady(photoReadyForSubmit);
 //    }
 //    @Subscribe
-//    public void onS3Upload(S3UploadUpload s3UploadUpload){
+//    public void onS3Upload(S3Upload s3UploadUpload){
 //        Ln.d("onS3Upload");
 //
 //        handleS3Upload(s3UploadUpload);

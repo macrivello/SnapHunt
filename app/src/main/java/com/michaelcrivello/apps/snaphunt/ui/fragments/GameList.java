@@ -36,10 +36,17 @@ import rx.Observer;
  * Created by michael on 5/20/15.
  */
 public class GameList extends BaseFragment {
+    private static final long GAME_LIST_REFRESH_INTERVAL = 5000;
+
     @Inject SnaphuntApi snaphuntApi;
     ListView gamesListView;
     GameListAdapter gameListAdapter;
     ViewGroup emptyListOverlay;
+
+    // Round Polling. BAD
+    private Handler gameListPollingHandler;
+    private Runnable gameListPollingRunnable;
+
 
     protected static final String TITLE = "Games";
 
@@ -47,6 +54,15 @@ public class GameList extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gameListAdapter = new GameListAdapter(SnaphuntApp.getInstance(), Collections.<Game>emptyList());
+
+        gameListPollingHandler = new Handler();
+        gameListPollingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                loadGamesList();
+                gameListPollingHandler.postDelayed(this, GAME_LIST_REFRESH_INTERVAL);
+            }
+        };
     }
 
 
@@ -63,7 +79,18 @@ public class GameList extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         gamesListView.setAdapter(gameListAdapter);
         setListListener();
-        loadGamesList();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        gameListPollingHandler.post(gameListPollingRunnable);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        gameListPollingHandler.removeCallbacksAndMessages(null);
     }
 
     private void setListListener() {
@@ -91,12 +118,8 @@ public class GameList extends BaseFragment {
             @Override
             public void success(List<Game> games, Response response) {
                 Ln.d("Loading %d games into list.", games.size());
-                if (games.size() == 0) {
-                    showEmptyListOverlay(true);
-                } else {
-                    showEmptyListOverlay(false);
-                    gameListAdapter.setGames(games);
-                }
+                showEmptyListOverlay(games.size() == 0);
+                gameListAdapter.setGames(games);
             }
 
             @Override

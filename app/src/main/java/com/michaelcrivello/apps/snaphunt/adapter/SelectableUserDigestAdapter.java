@@ -8,7 +8,9 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
+import com.michaelcrivello.apps.snaphunt.exception.TooManyItemsSelectedException;
 import com.michaelcrivello.apps.snaphunt.misc.Selectable;
+import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.util.UserManager;
 import com.michaelcrivello.apps.snaphunt.view.UserDigestListItemView;
 
@@ -24,16 +26,28 @@ import roboguice.util.Ln;
  * Created by tao on 6/18/15.
  */
 public class SelectableUserDigestAdapter extends UserDigestAdapter implements SelectableAdapter {
+    private static final int MAX_SELECTABLE_DEFAULT = 10;
+
     @Inject UserManager userManager;
     HashMap<String, Selectable> selectables;
     ArrayList<Selectable> selected;
+    int maxSelection;
 
     public SelectableUserDigestAdapter(Context context) {
-        super(context);
+        this(context, MAX_SELECTABLE_DEFAULT);
         RoboGuice.injectMembers(context, this);
         selectables = new HashMap<String, Selectable>();
         selected = new ArrayList<>();
     }
+
+    public SelectableUserDigestAdapter(Context context, int maxSelection) {
+        super(context);
+        RoboGuice.injectMembers(context, this);
+        this.maxSelection = maxSelection;
+        selectables = new HashMap<String, Selectable>();
+        selected = new ArrayList<>();
+    }
+
 
     @Override
     public List<?> getSelectedItems() {
@@ -41,12 +55,17 @@ public class SelectableUserDigestAdapter extends UserDigestAdapter implements Se
     }
 
     @Override
-    public Selectable getSelectable(String key) {
-        return selectables.get(key);
+    public Selectable getSelectable(String userDigestId) {
+        return selectables.get(userDigestId);
     }
 
     @Override
-    public void setSelected(Selectable selectable, boolean selectedState) {
+    public void setSelected(Selectable selectable, boolean selectedState) throws TooManyItemsSelectedException {
+        // Check if there is room
+        if (selected.size() + 1 > this.maxSelection) {
+            throw new TooManyItemsSelectedException();
+        }
+
         selectable.setSelected(selectedState);
         if (selectedState) {
             selected.add(selectable);
@@ -74,5 +93,9 @@ public class SelectableUserDigestAdapter extends UserDigestAdapter implements Se
 
 
         super.loadUsers(users);
+    }
+
+    public int getMaxSelection() {
+        return maxSelection;
     }
 }
