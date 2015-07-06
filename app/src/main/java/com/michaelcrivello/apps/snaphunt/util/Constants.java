@@ -46,5 +46,6 @@ public class Constants {
     public static final int ROUND_TIME_LIMIT = 720; // 720 minutes == 12 hours
     public static final int MAX_USERS_PER_GAME = 10; // For Selectable adapter
 
+    public static final String USER_SUBMITTED_PHOTO = "USER_SUBMITTED_PHOTO";
 
 }

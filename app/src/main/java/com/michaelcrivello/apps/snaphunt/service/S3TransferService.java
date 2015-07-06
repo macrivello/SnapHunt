@@ -8,7 +8,10 @@ import android.os.IBinder;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.CognitoCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
+import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManagerConfiguration;
 import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.model.Region;
 import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.event.AWSTokenExpired;
@@ -71,6 +74,8 @@ public class S3TransferService extends RoboService {
         }
 
         transferManager = new TransferManager(cognitoCredentialsProvider);
+
+        transferManager.getAmazonS3Client().setRegion(com.amazonaws.regions.Region.getRegion(Regions.DEFAULT_REGION));
         bus.post(new S3TransferManagerUpdated(transferManager, null));
 //        Needle.onBackgroundThread().execute(new UiRelatedTask<TransferManager>() {
 //            @Override

@@ -2,12 +2,13 @@ package com.michaelcrivello.apps.snaphunt.data.model;
 
 import org.bson.types.ObjectId;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by michael on 3/22/15.
  */
-public class Photo {
+public class Photo implements Serializable{
     ObjectId _id;
     ObjectId owner;
     String url;

@@ -6,8 +6,10 @@ import android.os.Bundle;
 
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.google.inject.Inject;
+import com.google.inject.Provides;
 import com.michaelcrivello.apps.snaphunt.data.api.ApiHeaders;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
+import com.michaelcrivello.apps.snaphunt.event.AutoRefresh;
 import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
 import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
 import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
@@ -24,7 +26,7 @@ import roboguice.util.Ln;
 /**
  * Created by michael on 3/19/15.
  */
-public class BaseActivity extends RoboActionBarActivity {
+public abstract class BaseActivity extends RoboActionBarActivity {
     @Inject SnaphuntApi snaphuntApi;
     @Inject ApiHeaders apiHeaders;
     @Inject Bus bus;
@@ -32,6 +34,8 @@ public class BaseActivity extends RoboActionBarActivity {
     BaseActivityBusListener baseListener;
     TransferManager transferManager;
     Context context;
+    protected boolean autoRefresh;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +75,17 @@ public class BaseActivity extends RoboActionBarActivity {
             Ln.d("updateTransferManager");
             transferManager = transferManagerUpdated.getTransferManager();
         }
+
+        @Subscribe
+        public void onAutoRefresh(AutoRefresh autoRefresh) {
+            autoRefresh(autoRefresh.isAutoRefresh());
+        }
+
+        @Provides
+        public AutoRefresh onAutoRefreshProvides() {
+            return new AutoRefresh(autoRefresh);
+        }
+
     }
 
     protected void logout() {
@@ -79,25 +94,6 @@ public class BaseActivity extends RoboActionBarActivity {
         overridePendingTransition(0, 0);
     }
 
-//    @Subscribe
-//    public void onPhotoReady(PhotoReadyForSubmit photoReadyForSubmit){
-//        Ln.d("onPhotoReady");
-//
-//        handlePhotoReady(photoReadyForSubmit);
-//    }
-//    @Subscribe
-//    public void onS3Upload(S3Upload s3UploadUpload){
-//        Ln.d("onS3Upload");
-//
-//        handleS3Upload(s3UploadUpload);
-//    }
-//    @Subscribe
-//    public void onGcmRegistered (GcmRegistered gcmRegistered) {
-//        Ln.d("onGcmRegistered");
-//        userManager.updateUserGcmId(gcmRegistered.getRegId());
-//    }
-//    @Subscribe
-//    public void onGcmUnregistered (GcmUnregistered gcmUnregistered) {
-//        Ln.d("onGcmUnregistered");
-//    }
+
+    protected abstract void autoRefresh(boolean b);
 }

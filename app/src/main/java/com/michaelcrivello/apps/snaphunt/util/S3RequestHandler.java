@@ -69,8 +69,13 @@ public class S3RequestHandler extends RequestHandler {
         List<String> pathSegments;
 
         if (request != null){
-            Ln.d("Handing request with S3Handler");
-            return request.uri.getHost().startsWith("s3-");
+            String host = request.uri.getHost();
+            boolean canHandleRequest = host.startsWith("s3-") || host.startsWith(Constants.BUCKET_NAME);
+
+            if (canHandleRequest) {
+                Ln.d("Handing request with S3Handler");
+            }
+            return canHandleRequest;
         }
         return false;
     }
@@ -79,23 +84,42 @@ public class S3RequestHandler extends RequestHandler {
     public Result load(Request request, int networkPolicy) throws IOException {
         Ln.d("loading: " + request.uri);
         String bucket = "", key = "";
+        boolean regionSpecificEndpoint = request.uri.getHost().startsWith("s3-");
         List<String> pathSegments = request.uri.getPathSegments();
 
         int i;
+        /*
+            region specific : https://REGION.amazonaws.com/BUCKET/KEY
+               region : s3-us-west-2
+
+            non-region specific : https://BUCKET.s3.amazonaws.com/KEY
+
+            http://docs.aws.amazon.com/general/latest/gr/rande.html
+         */
+
         for (i = 0; i < pathSegments.size(); i++) {
             String s = pathSegments.get(i);
-            if (i == 0) {
-                bucket = s;
-            } else if (i == pathSegments.size() - 1){
-                key = key.concat(s);
+
+            if (regionSpecificEndpoint) {
+                if (i == 0) {
+                    bucket = s;
+                } else if (i == pathSegments.size() - 1){
+                    key = key.concat(s);
 //                suffix = getFileExtension(s);
+                } else {
+                    key = key.concat(s + "/");
+                }
             } else {
-                key = key.concat(s + "/");
+                if (i == pathSegments.size() -1 ) {
+                    key = key.concat(s);
+                } else {
+                    key = key.concat(s + "/");
+                }
             }
         }
 
         InputStream in = null;
-        in = transferManager.getAmazonS3Client().getObject(bucket, key).getObjectContent();
+        in = transferManager.getAmazonS3Client().getObject(Constants.BUCKET_NAME, key).getObjectContent();
 
         // if url is invalid, clear http cache (at least that call) and try again
         return new Result(in, Picasso.LoadedFrom.NETWORK);

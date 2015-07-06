@@ -40,6 +40,11 @@ public class RegisterActivity extends BaseActivity {
         initInputWatchers();
     }
 
+    @Override
+    protected void autoRefresh(boolean b) {
+        // Nothing to do for now
+    }
+
     // TODO: Implement text watchers to provide realtime feedback
     private void initInputWatchers() {
         emailText.requestFocus();

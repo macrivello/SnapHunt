@@ -53,6 +53,11 @@ public class GameCreationActivity extends BaseActivity {
         initPlayerList();
     }
 
+    @Override
+    protected void autoRefresh(boolean b) {
+        // Nothing to do for now
+    }
+
     // TODO: This should load 'friends only'...?
     private void initPlayerList() {
         snaphuntApi.getUserDigestList(null, new Callback<List<UserDigest>>() {

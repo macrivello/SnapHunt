@@ -50,6 +50,11 @@ public class WelcomeActivity extends BaseActivity {
         setContentView(R.layout.welcome);
     }
 
+    @Override
+    protected void autoRefresh(boolean b) {
+        // Nothing to do for now
+    }
+
     // Loads Home Screen
     // TODO: change activity
     private void loadHomeScreen() {

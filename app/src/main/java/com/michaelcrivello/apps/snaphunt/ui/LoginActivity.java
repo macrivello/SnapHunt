@@ -39,6 +39,11 @@ public class LoginActivity extends BaseActivity {
         setClickListeners();
     }
 
+    @Override
+    protected void autoRefresh(boolean b) {
+        // Nothing to do for now
+    }
+
     private void setClickListeners() {
         loginButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

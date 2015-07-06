@@ -2,15 +2,20 @@ package com.michaelcrivello.apps.snaphunt.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.inject.Provides;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.adapter.HomePagerAdapter;
+import com.michaelcrivello.apps.snaphunt.event.AutoRefresh;
+import com.michaelcrivello.apps.snaphunt.ui.fragments.BaseFragment;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.GameList;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.InviteList;
 import com.michaelcrivello.apps.snaphunt.view.SlidingTabLayout;
@@ -56,15 +61,28 @@ public class HomeActivity extends BaseActivity {
 
     }
 
+    @Override
+    protected void autoRefresh(boolean b) {
+        Fragment currentFragment = homePagerAdapter.getItem(homeViewPager.getCurrentItem());
+        if (currentFragment != null && currentFragment instanceof BaseFragment) {
+            ((BaseFragment)currentFragment).autoRefresh(b);
+        }
+    }
+
+    // TODO: I believe its best practice to hook into system calls onCreateOptionsMenu and onPrepareOptionsMenu
     private void initToolbar() {
         // Toolbar
         String userHome = userManager.getUser().getUsername();
-        userHome.concat(" - " + getString(R.string.home));
+        userHome = userHome.concat(" - " + getString(R.string.home));
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
         toolbar.setSubtitle(userHome);
         toolbar.inflateMenu(R.menu.home_menu);
+
+        // Init alpha of autorefresh icon
+        MenuItem autoRefreshIc = toolbar.getMenu().findItem(R.id.action_auto_refresh);
+        autoRefreshIc.getIcon().setAlpha(autoRefreshIc.isChecked() ? 255 : 100);
 
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
@@ -77,6 +95,9 @@ public class HomeActivity extends BaseActivity {
                     case R.id.action_new_game:
                         startNewGame();
                         return true;
+                    case R.id.action_auto_refresh:
+                        toggleAutoReresh(menuItem);
+                        return true;
                 }
 
                 return false;
@@ -84,8 +105,24 @@ public class HomeActivity extends BaseActivity {
         });
     }
 
+    private void toggleAutoReresh(MenuItem menuItem) {
+        menuItem.setChecked(!menuItem.isChecked());
+
+        autoRefresh = menuItem.isChecked();
+        bus.post(new AutoRefresh(autoRefresh));
+
+        if (autoRefresh) {
+            menuItem.getIcon().setAlpha(255);
+            Toast.makeText(this, "AUTO REFRESH: ON", Toast.LENGTH_SHORT).show();
+        } else {
+            menuItem.getIcon().setAlpha(100);
+            Toast.makeText(this, "AUTO REFRESH: OFF", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void startNewGame() {
         startActivity(new Intent(this, GameCreationActivity.class));
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
     }
+
 }

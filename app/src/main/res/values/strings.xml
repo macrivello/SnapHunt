@@ -48,6 +48,7 @@
     <string name="selectAPhoto">Select a Winning Photo...</string>
     <string name="waitingForTheme">Waiting For Theme Selection...</string>
     <string name="judgePickTheme">Select Theme!</string>
+    <string name="autoRefresh">Auto-Refresh</string>
 
 
 </resources>

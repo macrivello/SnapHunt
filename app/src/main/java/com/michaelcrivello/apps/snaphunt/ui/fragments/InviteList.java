@@ -135,4 +135,15 @@ public class InviteList extends BaseFragment {
     public String getTitle() {
         return TITLE;
     }
+
+    @Override
+    public void autoRefresh(boolean b) {
+        Ln.d(b ? "Auto refresh ON" : "Auto refresh Off");
+        inviteListPollingHandler.removeCallbacksAndMessages(null);
+
+        if (b) {
+            inviteListPollingHandler.post(inviteListPollingRunnable);
+        }
+    }
+
 }

@@ -62,6 +62,11 @@ public class SampleActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void autoRefresh(boolean b) {
+        // Nothing to do for now
+    }
+
 
     /*
         Click handlers for buttons

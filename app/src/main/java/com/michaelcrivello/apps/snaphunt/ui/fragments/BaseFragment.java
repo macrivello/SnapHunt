@@ -26,4 +26,5 @@ public abstract class BaseFragment extends RoboFragment {
         bus.unregister(this);
     }
 
+    public abstract void autoRefresh(boolean b);
 }

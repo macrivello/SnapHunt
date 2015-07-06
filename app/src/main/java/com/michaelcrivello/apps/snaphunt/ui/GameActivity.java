@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,6 +37,7 @@ import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.Theme;
 import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
 import com.michaelcrivello.apps.snaphunt.event.AWSTokenExpired;
+import com.michaelcrivello.apps.snaphunt.event.AutoRefresh;
 import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
 import com.michaelcrivello.apps.snaphunt.event.S3PhotoUpload;
 import com.michaelcrivello.apps.snaphunt.event.S3Upload;
@@ -100,6 +103,8 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     TextView photoUrl;
     @InjectView(R.id.stateInfoText)
     TextView stateInfoText;
+    @InjectView(R.id.toolbar)
+    Toolbar toolbar;
 
     protected Game game;
     protected int currentRoundNumber;
@@ -127,6 +132,8 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     // Round Polling. BAD
     private Handler roundPollingHandler;
     private Runnable roundPollingRunnable;
+
+    AlertDialog themeSelectionDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +178,8 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                 getGameData(getGameIdFromIntent());
             }
         }
+
+        initToolbar();
     }
 
     private void acceptInvitation(String gameId) {
@@ -188,11 +197,50 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         });
     }
 
+    private void initToolbar() {
+        // Toolbar
+        toolbar.setTitle(game != null ? "Game : " + game.getGameName() : "Game : ");
+        toolbar.inflateMenu(R.menu.game_menu);
+
+        MenuItem autoRefreshIc = toolbar.getMenu().findItem(R.id.action_auto_refresh);
+        autoRefreshIc.getIcon().setAlpha(autoRefreshIc.isChecked() ? 255 : 100);
+
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+
+                switch (menuItem.getItemId()) {
+                    case R.id.action_auto_refresh:
+                        toggleAutoReresh(menuItem);
+                        return true;
+                }
+
+                return false;
+            }
+        });
+    }
+
+    private void toggleAutoReresh(MenuItem menuItem) {
+        menuItem.setChecked(!menuItem.isChecked());
+
+        autoRefresh = menuItem.isChecked();
+        bus.post(new AutoRefresh(autoRefresh));
+
+        if (autoRefresh) {
+            menuItem.getIcon().setAlpha(255);
+            Toast.makeText(this, "AUTO REFRESH: ON", Toast.LENGTH_SHORT).show();
+        } else {
+            menuItem.getIcon().setAlpha(100);
+            Toast.makeText(this, "AUTO REFRESH: OFF", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
         Ln.d("onPause");
         bus.unregister(gameEventListener);
+        roundPollingHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -200,16 +248,18 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         super.onResume();
         Ln.d("onResume");
         bus.register(gameEventListener);
+        if (autoRefresh) {
+            roundPollingHandler.post(roundPollingRunnable);
+        }
     }
 
     private void loadGameData(Game game) {
         this.game = game;
+        updateToolbar(game);
 
         // TODO: Rounds are 1-indexed, currentRound is 0-indexed
         this.currentRoundNumber = game.getCurrentRound();
 
-        // TODO: This is BAD. Starting auto refresh of round object, which will run through gamestatecheck.
-        roundPollingHandler.post(roundPollingRunnable);
 //        snaphuntApi.getRound(game.getGameIdAsString(), game.getRounds().get(currentRoundNumber).toHexString(), new Callback<Round>() {
 //            @Override
 //            public void success(Round round, Response response) {
@@ -222,7 +272,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 //                Ln.e(error, "Error loading round Data");
 //            }
 //        });
-
 
         roundNumberText.setText("Current Round: " + (game.getCurrentRound() + 1));
 
@@ -240,6 +289,12 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         // Disable submit button when there is no photo selected to upload
         submitPhotoButton.setEnabled(selectedPhotoFile != null);
 
+    }
+
+    private void updateToolbar(Game game) {
+        if (toolbar != null) {
+            toolbar.setTitle("Game : " + game.getGameName());
+        }
     }
 
     private void getCurrentRound() {
@@ -369,7 +424,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
                 try {
                     adapter.setSelected(item, !item.isSelected());
-                    itemView.setActivated(item.isSelected());
+//                    itemView.setActivated(item.isSelected());
                 } catch (TooManyItemsSelectedException e) {
                     Ln.d("Too many items selected in list");
                 }
@@ -489,6 +544,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
                 if (!isJudge()) {
                     // Waiting for other players to submit photos
+                    // TODO: isUserPhotoSubmitted() should make network request. Need to update Round model.
                     boolean isUserPhotoSubmitted = isUserPhotoSubmitted();
                     selectPhotoButton.setEnabled(!isUserPhotoSubmitted);
                     submitPhotoButton.setEnabled(!isUserPhotoSubmitted);
@@ -496,7 +552,9 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
                     if (isUserPhotoSubmitted) {
                         // Needing to wait to load into s3 system
-//                        photoPreview.setPhoto(submittedPhoto);
+                        if (!photoPreview.isLocalBitmapLoaded()) {
+                            photoPreview.setPhoto(submittedPhoto);
+                        }
                         stateInfoText.setVisibility(View.INVISIBLE);
                     } else {
                         stateInfoText.setText(R.string.needToSubmitPhoto);
@@ -511,6 +569,9 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
             case "JUDGE_SELECTION":
                 // All photos should be submitted
                 if (!isJudge()) {
+                    if (!photoPreview.isLocalBitmapLoaded()) {
+                        photoPreview.setPhoto(submittedPhoto);
+                    }
                     stateInfoText.setText(R.string.waitingForJudge);
                     stateInfoText.setVisibility(View.VISIBLE);
                     selectPhotoButton.setEnabled(false);
@@ -526,6 +587,8 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                 }
                 break;
             case "ENDED":
+                // TODO: Load winning photo
+
                 stateInfoText.setText(R.string.roundEnded);
                 stateInfoText.setVisibility(View.VISIBLE);
                 selectPhotoButton.setEnabled(false);
@@ -563,6 +626,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
     // TODO: Make a custom view for theme selector.
     private void displayThemeSelection() {
+        if (themeSelectionDialog == null || !themeSelectionDialog.isShowing())
         snaphuntApi.getThemes(game.getGameIdAsString(), currentRound.getRoundIdAsString(), new Callback<List<Theme>>() {
             @Override
             public void success(List<Theme> themes, Response response) {
@@ -597,9 +661,11 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                 Ln.d("Picked theme: " + selectedTheme.getPhrase());
 
                 themeSelected(selectedTheme);
+
+                // TODO: dismiss() ?
             }
         });
-        builder.show();
+        themeSelectionDialog = builder.show();
     }
 
     @Override
@@ -901,7 +967,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
             Ln.d("submitting photo to snaphunt db");
             /* AmazonS3EncryptionClient is another implementing class of AmazonS3, which .getAmazonS3Client
               returns. I check source code, and saw that transfermanager constructs AmazonS3Client.
-              Casting for getResourceUrl(), not in AmazonS3 interface*/
+              Casting for getUrl(), not in AmazonS3 interface*/
             String photoUrl = ((AmazonS3Client)transferManager.getAmazonS3Client()).getResourceUrl(s3Upload.getBucket(), s3Upload.getKey());
             if (photoUrl == null) {
                 //TODO: handle this error.
@@ -917,8 +983,8 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                 @Override
                 public void success(Photo photo, Response response) {
                     Ln.d("Successfully submitted for for round");
-                    submittedPhoto = photo;
 
+                    submittedPhoto = photo;
                     // I can load s3 resource immediately, needs time to get stored on s3.
 
 //                    photoPreview.setPhoto(photo);
@@ -958,4 +1024,33 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
             return new PhotoReadyForSubmit(selectedPhotoFile);
         }
     }
+
+    @Override
+    public void autoRefresh(boolean b) {
+        Ln.d(b ? "Auto refresh ON" : "Auto refresh Off");
+        roundPollingHandler.removeCallbacksAndMessages(null);
+
+        if (b) {
+            roundPollingHandler.post(roundPollingRunnable);
+        }
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (submittedPhoto != null){
+            outState.putSerializable(Constants.USER_SUBMITTED_PHOTO, submittedPhoto);
+        }
+
+        super.onSaveInstanceState(outState);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        submittedPhoto = (Photo) savedInstanceState.getSerializable(Constants.USER_SUBMITTED_PHOTO);
+    }
+
 }

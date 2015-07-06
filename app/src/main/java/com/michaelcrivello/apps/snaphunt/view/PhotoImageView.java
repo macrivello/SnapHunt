@@ -1,6 +1,7 @@
 package com.michaelcrivello.apps.snaphunt.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -27,6 +28,7 @@ public class PhotoImageView extends ImageView {
     String photoId;
     Photo photo;
     Context context;
+    boolean localBitmapLoaded;
 
     public PhotoImageView(Context context) {
         super(context);
@@ -62,7 +64,20 @@ public class PhotoImageView extends ImageView {
 
         picasso.load(photo.getUrl())
                 .placeholder(R.drawable.logo_transparent)
-                .into(this);
+                .into(this, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Ln.d("Loaded " + photo.getId().toHexString());
+                        localBitmapLoaded = false;
+                        picasso.cancelRequest(PhotoImageView.this);
+                    }
+
+                    @Override
+                    public void onError() {
+                        Ln.e("Error loading " + photo.getId().toHexString());
+                        picasso.cancelRequest(PhotoImageView.this);
+                    }
+                });
     }
 
     public void loadPhoto(String photoId) {
@@ -78,5 +93,17 @@ public class PhotoImageView extends ImageView {
                 Ln.e("Error loading photo into image: " + error.getMessage());
             }
         });
+    }
+
+    @Override
+    public void setImageBitmap(Bitmap bm) {
+        super.setImageBitmap(bm);
+
+        if (bm != null)
+            localBitmapLoaded = true;
+    }
+
+    public boolean isLocalBitmapLoaded() {
+        return localBitmapLoaded;
     }
 }

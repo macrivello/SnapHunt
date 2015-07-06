@@ -93,6 +93,16 @@ public class GameList extends BaseFragment {
         gameListPollingHandler.removeCallbacksAndMessages(null);
     }
 
+    @Override
+    public void autoRefresh(boolean b) {
+        Ln.d(b ? "Auto refresh ON" : "Auto refresh Off");
+        gameListPollingHandler.removeCallbacksAndMessages(null);
+
+        if (b) {
+            gameListPollingHandler.post(gameListPollingRunnable);
+        }
+    }
+
     private void setListListener() {
         gamesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -124,7 +134,7 @@ public class GameList extends BaseFragment {
 
             @Override
             public void failure(RetrofitError error) {
-                Ln.e("Error loading list of games. " + error.getUrl() +  error.getResponse() + error.getBody());
+                Ln.e("Error loading list of games. " + error.getUrl() + error.getResponse() + error.getBody());
             }
         });
     }

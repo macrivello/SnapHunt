@@ -62,17 +62,36 @@ public class SelectableUserDigestAdapter extends UserDigestAdapter implements Se
     @Override
     public void setSelected(Selectable selectable, boolean selectedState) throws TooManyItemsSelectedException {
         // Check if there is room
-        if (selected.size() + 1 > this.maxSelection) {
-            throw new TooManyItemsSelectedException();
-        }
 
-        selectable.setSelected(selectedState);
         if (selectedState) {
+            if (selected.size() == this.maxSelection) {
+                //Remove first selected
+                for (Selectable s : selected) {
+                    if (s.isSelected()) {
+                        s.setSelected(false);
+                        selected.remove(s);
+                        break;
+                    }
+                }
+//                throw new TooManyItemsSelectedException();
+            }
+            selectable.setSelected(true);
             selected.add(selectable);
         } else {
+            selectable.setSelected(false);
             selected.remove(selectable);
         }
         notifyDataSetChanged();
+    }
+
+    @Override
+    public View getView(int position, View view, ViewGroup parent) {
+        View v = super.getView(position, view, parent);
+        Selectable s = selectables.get(this.getItem(position).getId().toHexString());
+        if (s != null) {
+            v.setActivated(s.isSelected());
+        }
+        return v;
     }
 
     @Override

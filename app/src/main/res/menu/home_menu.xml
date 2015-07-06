@@ -10,4 +10,9 @@
         android:title="@string/logout"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_auto_refresh"
+        android:title="@string/autoRefresh"
+        android:icon="@android:drawable/ic_menu_rotate"
+        app:showAsAction="ifRoom" />
 </menu>
