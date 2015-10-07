@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:text="@string/login_button"
         android:id="@+id/login_submit_button"
-        android:layout_above="@+id/facebook_login_text"
+        android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/login_password"
         android:layout_alignStart="@+id/login_password"
         android:layout_alignRight="@+id/login_password"
@@ -64,12 +64,4 @@
         android:onClick="onLoginSubmit"
     />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/facebook_login_text"
-        android:text="@string/facebook_login"
-        android:textSize="14dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
 </RelativeLayout>

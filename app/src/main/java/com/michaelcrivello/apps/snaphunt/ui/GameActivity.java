@@ -124,6 +124,9 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     private String selectedPhotoFilePath;
     private Photo submittedPhoto;
     private Photo selectedWinningPhoto;
+    private Photo winningPhoto;
+    private UserDigest winner;
+    private String judgeId;
     private static final int IMAGE_SELECTED_CODE = 69;
     private static final int REQUEST_IMAGE_CAPTURE = 70;
 
@@ -320,6 +323,15 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         Ln.d("loading current round");
         if (round != null) {
             this.currentRound = round;
+
+            // TODO: Set Judge on UserDigestListItemView
+            if (judgeId == null) {
+                judgeId = round.getJudge().toHexString();
+
+                SelectableUserDigestAdapter adapter = (SelectableUserDigestAdapter) ((HeaderViewListAdapter) playersListView.getAdapter()).getWrappedAdapter();
+            }
+
+
             loadThemeData(currentRound);
 
             gameStateCheck();
@@ -390,12 +402,16 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // load photo into photo preview
-                submittedPhoto = null;
+                selectedWinningPhoto = null;
                 // Grab userDigestId, getRoundPhotoFromUserDigestId.
                 UserDigestListItemView itemView = (UserDigestListItemView) view;
                 String userDigestId = itemView.getUser().getId().toHexString();
 
                 SelectableUserDigestAdapter adapter = (SelectableUserDigestAdapter) ((HeaderViewListAdapter) parent.getAdapter()).getWrappedAdapter();
+
+                // testing. incorrect photo showing up.
+//                adapter.getItem(position);
+//                userDigestId = adapter.getItem(position).getId().toHexString();
 
                 // Should I just look up position?
                 Selectable item = adapter.getSelectable(userDigestId);
@@ -409,7 +425,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                         public void success(Photo photo, Response response) {
                             Ln.d("Got submitted photo from userDigest: " + userDigestId);
                             photoPreview.setPhoto(photo);
-                            submittedPhoto = photo;
+                            selectedWinningPhoto = photo;
                             photos.put(userDigestId, photo);
                         }
 
@@ -419,6 +435,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                         }
                     });
                 } else {
+                    selectedWinningPhoto = photo;
                     photoPreview.setPhoto(photo);
                 }
 
@@ -429,7 +446,10 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                     Ln.d("Too many items selected in list");
                 }
 
-                submitWinningPhotoButton.setEnabled(adapter.getSelectedItems().size() > 0);
+                // Only enable is judge and its time to pick photo
+                if (isJudge() && currentRound != null && currentRound.getState().equals(Round.RoundState.JUDGE_SELECTION.name())) {
+                    submitWinningPhotoButton.setEnabled(adapter.getSelectedItems().size() == 1);
+                }
             }
         });
 
@@ -482,7 +502,6 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
             }
         });
     }
-
 
     // TODO: This needs major refactoring.
     // Check the game_activity state and handle appropriately, such as prompting Theme selection.
@@ -568,6 +587,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                 break;
             case "JUDGE_SELECTION":
                 // All photos should be submitted
+
                 if (!isJudge()) {
                     if (!photoPreview.isLocalBitmapLoaded()) {
                         photoPreview.setPhoto(submittedPhoto);
@@ -588,9 +608,43 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                 break;
             case "ENDED":
                 // TODO: Load winning photo
+                if (winningPhoto == null) {
+                    snaphuntApi.getPhoto(currentRound.getWinningPhoto().toHexString(), new Callback<Photo>() {
+                        @Override
+                        public void success(Photo photo, Response response) {
+                            Ln.d("got winning photo");
+                            winningPhoto = photo;
+                            updateWinningPhoto(winningPhoto);
+                        }
 
-                stateInfoText.setText(R.string.roundEnded);
-                stateInfoText.setVisibility(View.VISIBLE);
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Ln.e("Error downloading winning photo");
+                        }
+                    });
+                } else {
+                    if (winner == null) {
+                        stateInfoText.setText(R.string.roundEnded);
+                        stateInfoText.setVisibility(View.VISIBLE);
+
+                        snaphuntApi.getUserDigest(currentRound.getWinner().toHexString(), new Callback<UserDigest>() {
+                            @Override
+                            public void success(UserDigest userDigest, Response response) {
+                                Ln.d("got userdigest of winner");
+                                winner = userDigest;
+                                updateWinner(winner);
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+
+                            }
+                        });
+                    } else {
+                        updateWinner(winner);
+                    }
+                }
+
                 selectPhotoButton.setEnabled(false);
                 submitPhotoButton.setEnabled(false);
                 takePhotoButton.setEnabled(false);
@@ -598,6 +652,24 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                 break;
 
         }
+    }
+
+    private void updateWinner(UserDigest user) {
+        stateInfoText.setText(user.getUsername() + " wins the round!");
+        stateInfoText.setVisibility(View.VISIBLE);
+        if (stateInfoText.getVisibility() == View.VISIBLE) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    stateInfoText.setVisibility(View.INVISIBLE);
+                    setClickListenersListView(playersListView);
+                }
+            }, 5000);
+        }
+    }
+
+    private void updateWinningPhoto(Photo photo) {
+        photoPreview.setPhoto(photo);
     }
 
     // I'm gonna hit the network on this one to ensure photo is sittin in DB
@@ -743,11 +815,13 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
     // Submit winning photo
     public void onWinningPhotoSubmit(View v) {
-        if (submittedPhoto != null){
-            snaphuntApi.submitWinner(game.getGameIdAsString(), currentRound.getRoundIdAsString(), submittedPhoto.getId().toHexString(), new Callback<Void>() {
+        Ln.d("onWinningPhotoSubmit");
+        if (selectedWinningPhoto != null){
+            snaphuntApi.submitWinner(game.getGameIdAsString(), currentRound.getRoundIdAsString(), selectedWinningPhoto.getId().toHexString(), new Callback<Round>() {
                 @Override
-                public void success(Void aVoid, Response response) {
+                public void success(Round round, Response response) {
                     Ln.d("Selected winning photo");
+                    loadCurrentRound(round);
                 }
 
                 @Override
@@ -755,6 +829,8 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                     Ln.d("Error selecting winning photo");
                 }
             });
+        } else {
+            Ln.e("selectedWinningPhoto is null");
         }
     }
 

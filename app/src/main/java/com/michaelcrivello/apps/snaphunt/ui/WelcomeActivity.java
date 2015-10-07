@@ -3,7 +3,14 @@ package com.michaelcrivello.apps.snaphunt.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
@@ -13,11 +20,15 @@ import com.michaelcrivello.apps.snaphunt.util.UserManager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import roboguice.inject.InjectView;
+import roboguice.util.Ln;
 
 /**
  * Created by michael on 3/18/15.
  */
 public class WelcomeActivity extends BaseActivity {
+    @InjectView(R.id.fb_login_button)
+    LoginButton fbLoginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +59,42 @@ public class WelcomeActivity extends BaseActivity {
 
         // Quick Fade in welcome screen
         setContentView(R.layout.welcome);
+
+        fbLoginButton.setReadPermissions("user_friends");
+        fbLoginButton.registerCallback(CallbackManager.Factory.create(), new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Ln.d("FB login success.");
+
+                loginResult.getAccessToken();
+            }
+
+            @Override
+            public void onCancel() {
+                Ln.d("FB login cancel");
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+                Ln.d("FB login error");
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Logs 'install' and 'app activate' App Events.
+        AppEventsLogger.activateApp(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Logs 'app deactivate' App Event.
+        AppEventsLogger.deactivateApp(this);
     }
 
     @Override

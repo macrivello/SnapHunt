@@ -55,7 +55,7 @@ public abstract class BaseActivity extends RoboActionBarActivity {
     }
 
     @Override
-    protected void onStop() {
+    protected void onPause() {
         super.onStop();
         bus.unregister(baseListener);
     }

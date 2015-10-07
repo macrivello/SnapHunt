@@ -37,8 +37,12 @@ public interface SnaphuntApi {
     Converter DATA_CONVERTER = new GsonConverter(GsonUtil.getMongoDocGson());
     String API_VERSION = "v1";
     // 10.0.2.2 is this machine localhost http://developer.android.com/tools/devices/emulator.html#networkaddresses
-    String API_ENDPOINT = "http://10.0.2.2:3000/api/" + API_VERSION + "/";
-    String AUTH_HEADER = Constants.AUTH_HEADER;
+//    String API_ENDPOINT = "http://10.0.2.2:3000/api/" + API_VERSION + "/";
+
+    // DigitalOcean Server. 'snaphunt' droplet.
+    String API_ENDPOINT = "http://104.236.190.164:3000/api/" + API_VERSION + "/";
+
+    // TODO: Implement API to return Observables
 
     // User
     @GET("/users")
@@ -97,7 +101,7 @@ public interface SnaphuntApi {
     void getPhotoFromUserDigestId(@Path("gameId") String gameId, @Path("roundId")String roundId, @Query("udid")String userDigestId, Callback<Photo> cb);
 
     @GET("/games/{gameId}/rounds/{roundId}/photo/{photoId}/winner")
-    void submitWinner(@Path("gameId") String gameId, @Path("roundId")String roundId, @Path("photoId")String photoId, Callback<Void> cb);
+    void submitWinner(@Path("gameId") String gameId, @Path("roundId")String roundId, @Path("photoId")String photoId, Callback<Round> cb);
 
     @POST("/games/{gameId}/rounds/{roundId}/photo")
     void submitPhoto(@Body Photo photo, @Path("gameId") String gameId, @Path("roundId")String roundId, Callback<Photo> cb);

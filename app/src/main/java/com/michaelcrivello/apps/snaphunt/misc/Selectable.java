@@ -12,7 +12,6 @@ public class Selectable extends AbstractSelectable implements ISelectable{
         selected = false;
     }
 
-
     @Override
     public boolean isSelected() {
         return selected;

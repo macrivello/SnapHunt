@@ -8,6 +8,7 @@ import android.os.StrictMode;
 import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.inject.Singleton;
 import com.michaelcrivello.apps.snaphunt.event.S3TransferProgress;
@@ -32,6 +33,8 @@ public class SnaphuntApp extends MultiDexApplication {
     @Override public void onCreate() {
         super.onCreate();
         instance = this;
+
+        FacebookSdk.sdkInitialize(this);
         startServices();
     }
 

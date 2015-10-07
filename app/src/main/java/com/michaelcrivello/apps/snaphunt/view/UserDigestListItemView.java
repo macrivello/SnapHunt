@@ -56,11 +56,14 @@ public class UserDigestListItemView extends LinearLayout {
         userThumb = (ImageView) findViewById(R.id.profilePhoto);
         username = (TextView) findViewById(R.id.usernameText);
 
-        container.setBackground(getResources().getDrawable(R.drawable.list_item_selector, null));
+//        container.setBackground(getResources().getDrawable(R.drawable.list_item_selector, null));
+        container.setBackground(getResources().getDrawable(R.drawable.list_item_selector));
+
 
         // getDrawable(id, theme);
         // TODO: update theme
-        DEFAULT_THUMB = getResources().getDrawable(R.drawable.blank_avatar, null);
+//        DEFAULT_THUMB = getResources().getDrawable(R.drawable.blank_avatar, null);
+        DEFAULT_THUMB = getResources().getDrawable(R.drawable.blank_avatar);
 
         if (user != null) {
             setUser(user);

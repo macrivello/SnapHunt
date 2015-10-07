@@ -87,12 +87,17 @@ public class SelectableUserDigestAdapter extends UserDigestAdapter implements Se
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         View v = super.getView(position, view, parent);
-        Selectable s = selectables.get(this.getItem(position).getId().toHexString());
-        if (s != null) {
-            v.setActivated(s.isSelected());
+        UserDigest ud = this.getItem(position);
+        if (ud != null) {
+            Selectable s = selectables.get(ud.getId().toHexString());
+            if (s != null) {
+                v.setActivated(s.isSelected());
+            }
+
         }
         return v;
     }
+
 
     @Override
     public void loadUsers(List<UserDigest> userDigests) {

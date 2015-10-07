@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.michaelcrivello.apps.snaphunt"
-        minSdkVersion 21
+        minSdkVersion 16
         targetSdkVersion 22
         compileSdkVersion 22
         buildToolsVersion "22.0.1"
@@ -57,14 +57,15 @@ dependencies {
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     // Progress wheel
     compile 'com.pnikosis:materialish-progress:1.4'
+
     compile 'com.zsoltsafrany:needle:1.0.0'
     compile 'com.squareup.picasso:picasso:2.5.0'
     compile 'com.google.android.gms:play-services-base:6.5.87'
     compile 'com.android.support:multidex:1.0.0'
     compile 'org.mongodb:bson:3.0.0-rc0'
     compile 'io.reactivex:rxandroid:0.25.0'
-    compile 'com.etsy.android.grid:library:1.0.3'
     compile 'com.annimon:stream:1.0.1'
+    compile 'com.facebook.android:facebook-android-sdk:4.6.0'
 
 }
 
