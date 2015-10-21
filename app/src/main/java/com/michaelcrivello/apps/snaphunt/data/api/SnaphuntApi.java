@@ -40,7 +40,7 @@ public interface SnaphuntApi {
 //    String API_ENDPOINT = "http://10.0.2.2:3000/api/" + API_VERSION + "/";
 
     // DigitalOcean Server. 'snaphunt' droplet.
-    String API_ENDPOINT = "https://api.snaphuntapp.co:3000/api/" + API_VERSION + "/";
+    String API_ENDPOINT = "https://snaphuntapp.co/api/" + API_VERSION + "/";
 
     // TODO: Implement API to return Observables
 
