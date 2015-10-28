@@ -46,6 +46,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     // TODO: Implement text watchers to provide realtime feedback
+    // TODO: look into RxSamples for this^
     private void initInputWatchers() {
         emailText.requestFocus();
     }

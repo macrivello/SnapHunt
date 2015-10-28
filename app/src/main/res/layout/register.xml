@@ -58,23 +58,13 @@
         android:text="@string/register_button"
         android:id="@+id/register_submit_button"
         android:layout_marginTop="5dp"
-        android:layout_above="@+id/facebook_register_text"
         android:layout_alignLeft="@+id/register_password"
         android:layout_alignStart="@+id/register_password"
         android:layout_alignRight="@+id/register_password"
         android:layout_alignEnd="@+id/register_password"
-        android:onClick="onRegisterSubmit"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/facebook_register_text"
-        android:text="@string/facebook_register"
-        android:layout_marginTop="8dp"
-        android:textSize="12dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        />
+        android:onClick="onRegisterSubmit"/>
 
     <EditText
         android:layout_width="wrap_content"
@@ -87,5 +77,6 @@
         android:layout_alignStart="@+id/register_username"
         android:hint="@string/email_hint"
         android:imeOptions="flagNoExtractUi"
+
         />
 </RelativeLayout>
