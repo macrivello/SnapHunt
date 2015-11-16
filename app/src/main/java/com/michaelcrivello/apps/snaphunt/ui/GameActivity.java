@@ -76,7 +76,6 @@ import roboguice.util.Ln;
 public class GameActivity extends BaseActivity implements ThemeSelection {
     private static final long ROUND_REFRESH_INTERVAL = 5000;
 
-
     @InjectView(R.id.gameOpenCameraButton)
     Button takePhotoButton;
     @InjectView(R.id.gameSubmitPhotoButton)

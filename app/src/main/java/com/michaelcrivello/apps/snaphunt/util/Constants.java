@@ -28,12 +28,18 @@ public class Constants {
     // API
     public static final String AUTH_HEADER = "x-auth-token";
     public static final String GCM_HEADER = "gcm-reg-id";
+    public static final String HTTP_CONTENT_TYPE_HEADER = "Content-Type";
     public static final String HTTP_CONTENT_TYPE_JSON = "application/json";
+
+    public static final String LOCAL_SERVER_WAN = "Local Server (WAN)";
+    public static final String LOCAL_SERVER_LAN_EMULATOR = "Local Server (LAN/EMULATOR)";
+    public static final String REMOTE_SERVER = "Snaphuntapp.co";
 
     // SharedPrefs
     public static final String SHARED_PREFS = "SNAPHUNT_DATA";
     public static final String USER_ID_KEY = "SNAPHUNT_USER_ID_KEY";
     public static final String USER_TOKEN_KEY = "SNAPHUNT_USER_TOKEN_KEY";
+    public static final String API_ENDPOINT_KEY = "SNAPHUNT_API_ENDPOINT_KEY";
 
     // Intent Bundle Keys
     public static final String GAME_ID_KEY = "GAME_ID_KEY";

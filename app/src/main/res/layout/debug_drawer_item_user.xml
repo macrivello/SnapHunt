@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="user" type="com.michaelcrivello.apps.snaphunt.data.model.User"/>
+    </data>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:columnCount="2"
+        tools:ignore="UselessParent">
+        <TextView
+            android:layout_columnSpan="2"
+            android:layout_width="0dp"
+            android:layout_gravity="start|fill_horizontal"
+            android:text="Snaphunt User"
+            style="@style/Widget.DebugDrawer.Header"
+            />
+
+        <TextView
+            android:layout_gravity="start|center_vertical"
+            android:text="Username"
+            style="@style/Widget.DebugDrawer.RowTitle"
+            />
+        <TextView
+            android:id="@+id/debug_user_username"
+            android:layout_width="0dp"
+            android:layout_gravity="start|center_vertical|fill_horizontal"
+            style="@style/Widget.DebugDrawer.RowValue"
+            android:text="@{user.username}"/>
+
+        <TextView
+            android:layout_gravity="start|center_vertical"
+            android:text="User ID"
+            style="@style/Widget.DebugDrawer.RowTitle"
+            />
+        <TextView
+            android:id="@+id/debug_user_id"
+            android:layout_width="0dp"
+            android:layout_gravity="start|center_vertical|fill_horizontal"
+            style="@style/Widget.DebugDrawer.RowValue"
+            android:text="@{user.Id}"/>
+
+        <TextView
+            android:layout_gravity="start|center_vertical"
+            android:text="UserDigest ID"
+            style="@style/Widget.DebugDrawer.RowTitle"
+            />
+        <TextView
+            android:id="@+id/debug_user_digestid"
+            android:layout_width="0dp"
+            android:layout_gravity="start|center_vertical|fill_horizontal"
+            style="@style/Widget.DebugDrawer.RowValue"
+            android:text="@{user.userDigest}"/>
+
+        <TextView
+            android:layout_gravity="start|center_vertical"
+            android:text="Email"
+            style="@style/Widget.DebugDrawer.RowTitle"
+            />
+        <TextView
+            android:id="@+id/debug_user_email"
+            android:layout_width="0dp"
+            android:layout_gravity="start|center_vertical|fill_horizontal"
+            style="@style/Widget.DebugDrawer.RowValue"
+            android:text="@{user.email}"/>
+
+        <TextView
+            android:layout_gravity="start|center_vertical"
+            android:text="AuthToken"
+            style="@style/Widget.DebugDrawer.RowTitle"
+            />
+        <TextView
+            android:id="@+id/debug_user_authtoken"
+            android:layout_width="0dp"
+            android:layout_gravity="start|center_vertical|fill_horizontal"
+            style="@style/Widget.DebugDrawer.RowValue"
+            android:text="@{user.authToken}"/>
+
+        <TextView
+            android:layout_gravity="start|center_vertical"
+            android:text="GCM ID"
+            style="@style/Widget.DebugDrawer.RowTitle"
+            />
+        <TextView
+            android:id="@+id/debug_user_gcm"
+            android:layout_width="0dp"
+            android:layout_gravity="start|center_vertical|fill_horizontal"
+            style="@style/Widget.DebugDrawer.RowValue"
+            android:text="@{user.gcmRegId}"/>
+    </GridLayout>
+</layout>

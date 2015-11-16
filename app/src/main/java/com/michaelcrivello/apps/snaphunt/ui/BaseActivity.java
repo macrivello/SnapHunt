@@ -2,24 +2,39 @@ package com.michaelcrivello.apps.snaphunt.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
+import com.michaelcrivello.apps.snaphunt.BuildConfig;
+import com.michaelcrivello.apps.snaphunt.R;
+import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.data.api.ApiHeaders;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
+import com.michaelcrivello.apps.snaphunt.data.model.User;
+import com.michaelcrivello.apps.snaphunt.databinding.DebugDrawerItemUserBinding;
+import com.michaelcrivello.apps.snaphunt.debug.ApiEndpointDebugDrawerModule;
+import com.michaelcrivello.apps.snaphunt.debug.UserDebugDrawerModule;
 import com.michaelcrivello.apps.snaphunt.event.AutoRefresh;
 import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
 import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
-import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
 import com.michaelcrivello.apps.snaphunt.event.S3TransferManagerUpdated;
-import com.michaelcrivello.apps.snaphunt.event.S3Upload;
 import com.michaelcrivello.apps.snaphunt.util.GcmUtil;
 import com.michaelcrivello.apps.snaphunt.util.UserManager;
+import com.squareup.okhttp.OkHttpClient;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import com.squareup.picasso.Picasso;
 
+import io.palaima.debugdrawer.DebugDrawer;
+import io.palaima.debugdrawer.module.BuildModule;
+import io.palaima.debugdrawer.module.DeviceModule;
+import io.palaima.debugdrawer.module.NetworkModule;
+import io.palaima.debugdrawer.module.SettingsModule;
+import io.palaima.debugdrawer.okhttp.OkHttpModule;
+import io.palaima.debugdrawer.picasso.PicassoModule;
 import roboguice.activity.RoboActionBarActivity;
 import roboguice.util.Ln;
 
@@ -31,11 +46,17 @@ public abstract class BaseActivity extends RoboActionBarActivity {
     @Inject ApiHeaders apiHeaders;
     @Inject Bus bus;
     @Inject UserManager userManager;
+    @Inject Picasso picasso;
+    @Inject OkHttpClient okHttpClient;
+
     BaseActivityBusListener baseListener;
     TransferManager transferManager;
     Context context;
-    protected boolean autoRefresh;
 
+
+    DebugDrawer debugDrawer;
+
+    protected boolean autoRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +77,23 @@ public abstract class BaseActivity extends RoboActionBarActivity {
 
     @Override
     protected void onPause() {
-        super.onStop();
+        super.onPause();
         bus.unregister(baseListener);
+    }
+
+    protected void initDebugDrawer() {
+        if (BuildConfig.DEBUG) {
+            debugDrawer = new DebugDrawer.Builder(this).modules(
+                    new ApiEndpointDebugDrawerModule(this),
+                    new UserDebugDrawerModule(this),
+                    new OkHttpModule(okHttpClient),
+                    new PicassoModule(picasso),
+                    new DeviceModule(this),
+                    new BuildModule(this),
+                    new NetworkModule(this),
+                    new SettingsModule(this)
+            ).build();
+        }
     }
 
     protected class BaseActivityBusListener {

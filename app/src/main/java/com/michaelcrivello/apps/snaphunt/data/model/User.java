@@ -1,5 +1,7 @@
 package com.michaelcrivello.apps.snaphunt.data.model;
 
+
+import android.databinding.BindingConversion;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
@@ -109,6 +111,11 @@ public class User {
 
     public ObjectId getUserDigest() {
         return userDigest;
+    }
+
+    @BindingConversion
+    public static String convertObjectIdToString(ObjectId objectId){
+        return objectId.toHexString();
     }
 }
 

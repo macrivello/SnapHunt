@@ -1,25 +1,12 @@
 package com.michaelcrivello.apps.snaphunt;
 
-import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.StrictMode;
 import android.support.multidex.MultiDexApplication;
-import android.widget.Toast;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.inject.Singleton;
-import com.michaelcrivello.apps.snaphunt.event.S3TransferProgress;
+import com.google.inject.Provides;
 import com.michaelcrivello.apps.snaphunt.service.S3TransferService;
-import com.michaelcrivello.apps.snaphunt.util.Constants;
-import com.michaelcrivello.apps.snaphunt.util.GcmUtil;
-import com.squareup.otto.Bus;
-import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
-
-import roboguice.RoboGuice;
+import io.palaima.debugdrawer.DebugDrawer;
 import roboguice.util.Ln;
 
 

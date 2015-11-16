@@ -36,11 +36,15 @@ import retrofit.http.Query;
 public interface SnaphuntApi {
     Converter DATA_CONVERTER = new GsonConverter(GsonUtil.getMongoDocGson());
     String API_VERSION = "v1";
-    // 10.0.2.2 is this machine localhost http://developer.android.com/tools/devices/emulator.html#networkaddresses
-//    String API_ENDPOINT = "http://10.0.2.2:3000/api/" + API_VERSION + "/";
 
     // DigitalOcean Server. 'snaphunt' droplet.
     String API_ENDPOINT = "https://snaphuntapp.co/api/" + API_VERSION + "/";
+
+    // 10.0.2.2 is this machine localhost http://developer.android.com/tools/devices/emulator.html#networkaddresses
+    String API_ENDPOINT_EMULATOR_LOCAL = "http://10.0.2.2:3000/api/" + API_VERSION + "/";
+
+    String API_ENDPOINT_LOCAL = "http://192.168.1.89:3000/api/" + API_VERSION + "/";
+
 
     // TODO: Implement API to return Observables
 
@@ -57,7 +61,7 @@ public interface SnaphuntApi {
     @POST("/register")
     void registerUser(@Body User user, Callback<User> cb);
 
-    @POST("/login")
+    @GET("/login")
     void loginUser(@Query("username") String username, @Query("password") String password, Callback<User> cb);
 
     // UserDigest

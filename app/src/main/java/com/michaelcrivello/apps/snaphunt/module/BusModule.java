@@ -13,10 +13,4 @@ public class BusModule extends AbstractModule{
     protected void configure() {
         bind(Bus.class).to(MainThreadBus.class).asEagerSingleton();
     }
-//
-//    @Provides
-//    Bus provideBus() {
-//        return new Bus();
-//    }
-
 }

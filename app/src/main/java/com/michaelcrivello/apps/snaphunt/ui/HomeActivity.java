@@ -1,6 +1,7 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -14,11 +15,14 @@ import com.google.inject.Provides;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.adapter.HomePagerAdapter;
+import com.michaelcrivello.apps.snaphunt.databinding.DebugDrawerItemUserBinding;
 import com.michaelcrivello.apps.snaphunt.event.AutoRefresh;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.BaseFragment;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.GameList;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.InviteList;
 import com.michaelcrivello.apps.snaphunt.view.SlidingTabLayout;
+
+import roboguice.util.Ln;
 
 /**
  * Created by michael on 5/19/15.
@@ -31,11 +35,12 @@ public class HomeActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Ln.d("onCreate");
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.home_activity);
 
         initToolbar();
+        initDebugDrawer();
 
         // Creating The ViewPagerAdapter and Passing Fragment Manager, Titles fot the Tabs and Number Of Tabs.
         homePagerAdapter =  new HomePagerAdapter(getSupportFragmentManager(), new GameList(), new InviteList());
@@ -58,7 +63,22 @@ public class HomeActivity extends BaseActivity {
 
         // Setting the ViewPager For the SlidingTabsLayout
         tabs.setViewPager(homeViewPager);
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (debugDrawer != null) {
+            debugDrawer.onStop();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (debugDrawer != null) {
+            debugDrawer.onStart();
+        }
     }
 
     @Override
@@ -76,33 +96,37 @@ public class HomeActivity extends BaseActivity {
         userHome = userHome.concat(" - " + getString(R.string.home));
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.app_name);
-        toolbar.setSubtitle(userHome);
-        toolbar.inflateMenu(R.menu.home_menu);
 
-        // Init alpha of autorefresh icon
-        MenuItem autoRefreshIc = toolbar.getMenu().findItem(R.id.action_auto_refresh);
-        autoRefreshIc.getIcon().setAlpha(autoRefreshIc.isChecked() ? 255 : 100);
+        if (toolbar != null) {
+            toolbar.setTitle(R.string.app_name);
+            toolbar.setSubtitle(userHome);
+            toolbar.inflateMenu(R.menu.home_menu);
 
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
+            // Init alpha of autorefresh icon
+            MenuItem autoRefreshIc = toolbar.getMenu().findItem(R.id.action_auto_refresh);
+            autoRefreshIc.getIcon().setAlpha(autoRefreshIc.isChecked() ? 255 : 100);
 
-                switch (menuItem.getItemId()) {
-                    case R.id.action_logout:
-                        logout();
-                        return true;
-                    case R.id.action_new_game:
-                        startNewGame();
-                        return true;
-                    case R.id.action_auto_refresh:
-                        toggleAutoReresh(menuItem);
-                        return true;
+            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+
+                    switch (menuItem.getItemId()) {
+                        case R.id.action_logout:
+                            logout();
+                            return true;
+                        case R.id.action_new_game:
+                            startNewGame();
+                            return true;
+                        case R.id.action_auto_refresh:
+                            toggleAutoReresh(menuItem);
+                            return true;
+                    }
+
+                    return false;
                 }
+            });
+        }
 
-                return false;
-            }
-        });
     }
 
     private void toggleAutoReresh(MenuItem menuItem) {

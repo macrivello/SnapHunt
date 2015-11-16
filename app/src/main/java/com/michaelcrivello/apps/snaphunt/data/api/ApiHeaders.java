@@ -8,8 +8,6 @@ import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.squareup.okhttp.MediaType;
 
 
-import org.apache.http.protocol.HTTP;
-
 import retrofit.RequestInterceptor;
 import retrofit.mime.MimeUtil;
 
@@ -35,6 +33,6 @@ public class ApiHeaders implements RequestInterceptor {
         if (authToken != null) {
             request.addHeader(Constants.AUTH_HEADER, authToken);
         }
-        request.addHeader(HTTP.CONTENT_TYPE, Constants.HTTP_CONTENT_TYPE_JSON);
+        request.addHeader(Constants.HTTP_CONTENT_TYPE_HEADER, Constants.HTTP_CONTENT_TYPE_JSON);
     }
 }

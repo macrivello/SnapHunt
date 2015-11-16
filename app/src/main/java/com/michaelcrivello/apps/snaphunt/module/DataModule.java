@@ -74,7 +74,7 @@ public class DataModule extends AbstractModule {
         Cache cache = null;
         try {
             cache = new Cache(cacheDir, DISK_CACHE_SIZE);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Ln.e(e, "Error building httpclient cache.");
         }

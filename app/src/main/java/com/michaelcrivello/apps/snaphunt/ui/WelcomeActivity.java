@@ -24,6 +24,8 @@ public class WelcomeActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Ln.d("onCreate");
+
         super.onCreate(savedInstanceState);
         String userId = SharedPrefsUtil.sharedPreferences.getString(Constants.USER_ID_KEY, null);
         String userToken = SharedPrefsUtil.sharedPreferences.getString(Constants.USER_TOKEN_KEY, null);;
@@ -51,6 +53,8 @@ public class WelcomeActivity extends BaseActivity {
 
         // Quick Fade in welcome screen
         setContentView(R.layout.welcome);
+
+        initDebugDrawer();
     }
 
     @Override
@@ -61,6 +65,22 @@ public class WelcomeActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (debugDrawer != null) {
+            debugDrawer.onStop();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (debugDrawer != null) {
+            debugDrawer.onStart();
+        }
     }
 
     @Override

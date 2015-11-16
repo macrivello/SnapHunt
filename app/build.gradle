@@ -3,23 +3,20 @@ apply plugin: 'me.tatarka.retrolambda'
 
 
 android {
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
     defaultConfig {
         applicationId "com.michaelcrivello.apps.snaphunt"
         minSdkVersion 16
         targetSdkVersion 22
-        compileSdkVersion 22
+        compileSdkVersion 23
         buildToolsVersion "22.0.1"
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -38,11 +35,17 @@ android {
         exclude 'META-INF/dependencies.txt'
         exclude 'META-INF/LGPL2.1'
     }
+    compileSdkVersion 23
+    buildToolsVersion '23.0.1'
+
+    dataBinding {
+        enabled = true;
+    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:23.+'
     compile 'com.amazonaws:aws-android-sdk-core:2.1.10'
     compile 'com.amazonaws:aws-android-sdk-s3:2.1.10'
     compile 'org.roboguice:roboguice:3.0.1'
@@ -64,5 +67,11 @@ dependencies {
     compile 'org.mongodb:bson:3.0.0-rc0'
     compile 'io.reactivex:rxandroid:0.25.0'
     compile 'com.annimon:stream:1.0.1'
+    // Debug Drawer
+    compile 'io.palaima.debugdrawer:debugdrawer:0.5.0'
+    compile 'io.palaima.debugdrawer:debugdrawer-okhttp:0.5.0'
+    compile 'io.palaima.debugdrawer:debugdrawer-picasso:0.5.0'
+
+    compile 'com.jakewharton:process-phoenix:1.0.2'
 }
 
