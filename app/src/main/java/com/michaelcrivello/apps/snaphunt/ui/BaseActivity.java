@@ -1,27 +1,27 @@
 package com.michaelcrivello.apps.snaphunt.ui;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 
 import com.amazonaws.mobileconnectors.s3.transfermanager.TransferManager;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.michaelcrivello.apps.snaphunt.BuildConfig;
-import com.michaelcrivello.apps.snaphunt.R;
-import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.data.api.ApiHeaders;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
-import com.michaelcrivello.apps.snaphunt.data.model.User;
-import com.michaelcrivello.apps.snaphunt.databinding.DebugDrawerItemUserBinding;
 import com.michaelcrivello.apps.snaphunt.debug.ApiEndpointDebugDrawerModule;
 import com.michaelcrivello.apps.snaphunt.debug.UserDebugDrawerModule;
 import com.michaelcrivello.apps.snaphunt.event.AutoRefresh;
 import com.michaelcrivello.apps.snaphunt.event.GcmRegistered;
 import com.michaelcrivello.apps.snaphunt.event.GcmUnregistered;
 import com.michaelcrivello.apps.snaphunt.event.S3TransferManagerUpdated;
-import com.michaelcrivello.apps.snaphunt.util.GcmUtil;
+import com.michaelcrivello.apps.snaphunt.service.GCMInstanceIDRegistrationIntentService;
+import com.michaelcrivello.apps.snaphunt.util.Constants;
+import com.michaelcrivello.apps.snaphunt.util.SharedPrefsUtil;
 import com.michaelcrivello.apps.snaphunt.util.UserManager;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.otto.Bus;
@@ -42,6 +42,9 @@ import roboguice.util.Ln;
  * Created by michael on 3/19/15.
  */
 public abstract class BaseActivity extends RoboActionBarActivity {
+
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
     @Inject SnaphuntApi snaphuntApi;
     @Inject ApiHeaders apiHeaders;
     @Inject Bus bus;
@@ -52,17 +55,26 @@ public abstract class BaseActivity extends RoboActionBarActivity {
     BaseActivityBusListener baseListener;
     TransferManager transferManager;
     Context context;
-
-
     DebugDrawer debugDrawer;
 
     protected boolean autoRefresh;
+    private boolean playServicesInstalled;
+    private BroadcastReceiver registrationBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.context = getBaseContext();
         baseListener = new BaseActivityBusListener();
+
+        playServicesInstalled = checkPlayServices();
+        SharedPrefsUtil.sharedPreferences.edit().putBoolean(Constants.PLAY_SERVICES_INSTALLED_KEY, playServicesInstalled).apply();
+
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, GCMInstanceIDRegistrationIntentService.class);
+            startService(intent);
+        }
     }
 
     @Override
@@ -70,9 +82,7 @@ public abstract class BaseActivity extends RoboActionBarActivity {
         super.onResume();
         bus.register(baseListener);
 
-        if (GcmUtil.getRegistrationId().isEmpty()) {
-            GcmUtil.register();
-        }
+        bus.post(new AutoRefresh(false));
     }
 
     @Override
@@ -132,4 +142,25 @@ public abstract class BaseActivity extends RoboActionBarActivity {
 
 
     protected abstract void autoRefresh(boolean b);
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Ln.i("This device is not supported.");
+                return false;
+            }
+            return false;
+        }
+        return true;
+    }
 }

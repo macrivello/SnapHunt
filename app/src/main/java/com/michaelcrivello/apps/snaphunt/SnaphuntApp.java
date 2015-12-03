@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.multidex.MultiDexApplication;
 
 import com.google.inject.Provides;
+import com.michaelcrivello.apps.snaphunt.service.GCMInstanceIDListenerService;
+import com.michaelcrivello.apps.snaphunt.service.GCMListenerService;
 import com.michaelcrivello.apps.snaphunt.service.S3TransferService;
 
 import io.palaima.debugdrawer.DebugDrawer;
@@ -30,5 +32,4 @@ public class SnaphuntApp extends MultiDexApplication {
     }
 
     public static SnaphuntApp getInstance() { return instance; }
-
 }

@@ -6,22 +6,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.annimon.stream.Collectors;
-import com.annimon.stream.Stream;
 import com.michaelcrivello.apps.snaphunt.R;
-import com.michaelcrivello.apps.snaphunt.adapter.SelectableUserDigestAdapter;
-import com.michaelcrivello.apps.snaphunt.adapter.UserDigestAdapter;
+import com.michaelcrivello.apps.snaphunt.adapter.SelectableUserAdapter;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
-import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
+import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.exception.TooManyItemsSelectedException;
 import com.michaelcrivello.apps.snaphunt.misc.Selectable;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
-import com.michaelcrivello.apps.snaphunt.view.UserDigestListItemView;
-
-import org.bson.types.ObjectId;
+import com.michaelcrivello.apps.snaphunt.view.UserListItemView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +23,6 @@ import java.util.List;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import retrofit.http.Query;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
@@ -42,14 +35,14 @@ public class GameCreationActivity extends BaseActivity {
     @InjectView(R.id.roundTimeLimitEdit) EditText roundTimeLimit;
     @InjectView(R.id.invitePlayerListView) ListView inviteListView;
 
-    SelectableUserDigestAdapter selectableUserDigestAdapter;
+    SelectableUserAdapter selectableUserAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_create_activity);
 
-        selectableUserDigestAdapter = new SelectableUserDigestAdapter(this, Constants.MAX_USERS_PER_GAME - 1);
+        selectableUserAdapter = new SelectableUserAdapter(this, Constants.MAX_USERS_PER_GAME - 1);
         initPlayerList();
     }
 
@@ -60,10 +53,10 @@ public class GameCreationActivity extends BaseActivity {
 
     // TODO: This should load 'friends only'...?
     private void initPlayerList() {
-        snaphuntApi.getUserDigestList(null, new Callback<List<UserDigest>>() {
+        snaphuntApi.listUsers(new Callback<List<User>>() {
             @Override
-            public void success(List<UserDigest> userDigests, Response response) {
-                selectableUserDigestAdapter.loadUsers(userDigests);
+            public void success(List<User> users, Response response) {
+                selectableUserAdapter.loadUsers(users);
             }
 
             @Override
@@ -71,19 +64,19 @@ public class GameCreationActivity extends BaseActivity {
                 Ln.e(error, "Failed to load User List");
             }
         });
-        inviteListView.setAdapter(selectableUserDigestAdapter);
+        inviteListView.setAdapter(selectableUserAdapter);
         inviteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // selected ? Add view to list
-                UserDigestListItemView itemView = (UserDigestListItemView) view;
-                SelectableUserDigestAdapter adapter = ((SelectableUserDigestAdapter)parent.getAdapter());
+                UserListItemView itemView = (UserListItemView) view;
+                SelectableUserAdapter adapter = ((SelectableUserAdapter)parent.getAdapter());
                 Selectable item = adapter.getSelectable(itemView.getUser().getId().toHexString());
 
                 try {
                     adapter.setSelected(item, !item.isSelected());
                     itemView.setActivated(item.isSelected());
-                    Ln.d("user: " + (((UserDigestListItemView) view).getUser()).getUsername() + " selected: " + item.isSelected());
+                    Ln.d("user: " + (((UserListItemView) view).getUser()).getUsername() + " selected: " + item.isSelected());
                 } catch (TooManyItemsSelectedException e) {
                     Ln.d("Too many items selected in list");
                     Toast.makeText(context, "Only " + adapter.getMaxSelection() + " Players Allowed.", Toast.LENGTH_SHORT).show();
@@ -95,8 +88,8 @@ public class GameCreationActivity extends BaseActivity {
     public void onStartGame(View v) {
         // Create game
         List<String> players = new ArrayList<>();
-        for (Selectable selectable : (List<Selectable>)selectableUserDigestAdapter.getSelectedItems()) {
-            players.add(((UserDigest) selectable.getObject()).getId().toHexString());
+        for (Selectable selectable : (List<Selectable>) selectableUserAdapter.getSelectedItems()) {
+            players.add(((User) selectable.getObject()).getId().toHexString());
         }
 
         // Create Game. Route to Game Activity

@@ -8,7 +8,6 @@ import com.michaelcrivello.apps.snaphunt.data.model.Photo;
 import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.Theme;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
-import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.util.GsonUtil;
 import com.squareup.okhttp.Call;
@@ -52,6 +51,9 @@ public interface SnaphuntApi {
     @GET("/users")
     void listUsers(Callback<List<User>> users);
 
+    @GET("/users")
+    void listUsers(@Query("id") List<String> userIds, Callback<List<User>> users);
+
     @GET("/users/{userId}")
     void getUser(@Path("userId") String userId, Callback<User> cb);
 
@@ -64,19 +66,12 @@ public interface SnaphuntApi {
     @GET("/login")
     void loginUser(@Query("username") String username, @Query("password") String password, Callback<User> cb);
 
-    // UserDigest
-    @GET("/userdigest/:id")
-    void getUserDigest(@Path("id") String userId, Callback<UserDigest> cb);
-
-    @GET("/userdigest")
-    void getUserDigestList(@Query("id") List<String> userDigestIds, Callback<List<UserDigest>> cb);
-
     // Game
     @GET("/games")
     void getGames(Callback<List<Game>> games);
 
     @POST("/games")
-    void createGame(@Body Game newGame, @Query("id") List<String> userDigestIds, Callback<Game> cb);
+    void createGame(@Body Game newGame, @Query("id") List<String> userIds, Callback<Game> cb);
 
     @GET("/games/{gameId}")
     void getGame(@Path("gameId") String gameId, Callback<Game> cb);
@@ -102,7 +97,7 @@ public interface SnaphuntApi {
     void getPhoto(@Path("photoId")String photoId, Callback<Photo> cb);
 
     @GET("/games/{gameId}/rounds/{roundId}/photo/")
-    void getPhotoFromUserDigestId(@Path("gameId") String gameId, @Path("roundId")String roundId, @Query("udid")String userDigestId, Callback<Photo> cb);
+    void getPhotoFromUserId(@Path("gameId") String gameId, @Path("roundId") String roundId, @Query("uid") String userId, Callback<Photo> cb);
 
     @GET("/games/{gameId}/rounds/{roundId}/photo/{photoId}/winner")
     void submitWinner(@Path("gameId") String gameId, @Path("roundId")String roundId, @Path("photoId")String photoId, Callback<Round> cb);

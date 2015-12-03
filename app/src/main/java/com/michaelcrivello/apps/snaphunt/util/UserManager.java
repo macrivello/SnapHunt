@@ -1,16 +1,11 @@
 package com.michaelcrivello.apps.snaphunt.util;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Pair;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.data.api.ApiHeaders;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
-import com.michaelcrivello.apps.snaphunt.event.UserLogin;
+import com.michaelcrivello.apps.snaphunt.event.UserUpdate;
 import com.squareup.otto.Bus;
 
 import retrofit.Callback;
@@ -41,7 +36,7 @@ public class UserManager {
 
         storeUser(user);
 
-        bus.post(new UserLogin(user));
+        bus.post(new UserUpdate(user));
         checkGcmRegId();
     }
 
@@ -56,8 +51,9 @@ public class UserManager {
         }
     }
 
+    // TODO: Update to use InstanceID instead of GcmUtil.register()
     private void checkGcmRegId() {
-        final String gcmRegId = GcmUtil.getRegistrationId();
+        String gcmRegId = GCMUtil.getRegistrationId();
 
         // If there is a valid gcmId stored, update User.
         if (!gcmRegId.isEmpty()) {
@@ -65,7 +61,7 @@ public class UserManager {
                 updateUserGcmId(gcmRegId);
             }
         } else {
-            GcmUtil.register();
+            GCMUtil.register();
         }
     }
 
@@ -73,6 +69,11 @@ public class UserManager {
         return user;
     }
 
+    /*    Update user on server with new GCM Token.
+    *
+    *   Send serialized User object with only GCM Token set. Server
+    *   will only update this field in DB.
+    */
     public void updateUserGcmId(final String gcmRegId){
         User tmpUser = new User();
         tmpUser.setGcmRegId(gcmRegId);
@@ -82,7 +83,11 @@ public class UserManager {
                 @Override
                 public void success(User user, Response response) {
                     Ln.d("User's GcmRegId updated");
+
+                    // TODO: If I receive a new user object, should I update the user stored in user
+                    //manager?
                     user.setGcmRegId(gcmRegId);
+                    bus.post(new UserUpdate(user));
                 }
 
                 @Override
@@ -106,7 +111,4 @@ public class UserManager {
         return user != null ? user.getId().toHexString() : "";
     }
 
-    public String getUserDigestId() {
-        return user != null ? user.getUserDigest().toHexString() : "";
-    }
 }

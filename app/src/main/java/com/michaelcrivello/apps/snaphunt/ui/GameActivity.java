@@ -28,14 +28,13 @@ import com.amazonaws.mobileconnectors.s3.transfermanager.model.UploadResult;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
-import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
-import com.michaelcrivello.apps.snaphunt.adapter.SelectableUserDigestAdapter;
+import com.michaelcrivello.apps.snaphunt.adapter.SelectableUserAdapter;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
 import com.michaelcrivello.apps.snaphunt.data.model.Photo;
 import com.michaelcrivello.apps.snaphunt.data.model.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.Theme;
-import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
+import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.event.AWSTokenExpired;
 import com.michaelcrivello.apps.snaphunt.event.AutoRefresh;
 import com.michaelcrivello.apps.snaphunt.event.PhotoReadyForSubmit;
@@ -46,11 +45,10 @@ import com.michaelcrivello.apps.snaphunt.misc.Selectable;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.ThemeSelection;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.view.PhotoImageView;
-import com.michaelcrivello.apps.snaphunt.view.UserDigestListItemView;
+import com.michaelcrivello.apps.snaphunt.view.UserListItemView;
 import com.pnikosis.materialishprogress.ProgressWheel;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
-import com.squareup.picasso.Picasso;
 
 import org.bson.types.ObjectId;
 
@@ -112,10 +110,10 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
 
     // TODO: This is not that helpful in terms of performance, I only want to download photo once.
     //    Photo model only contains photo url.
-    // <UserDigestId, Photo>
+    // <UserId, Photo>
     protected HashMap<String, Photo> photos;
 
-    protected SelectableUserDigestAdapter gamePlayersAdapter;
+    protected SelectableUserAdapter gamePlayersAdapter;
     protected GameEventListener gameEventListener;
 
     // File uploading
@@ -124,7 +122,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     private Photo submittedPhoto;
     private Photo selectedWinningPhoto;
     private Photo winningPhoto;
-    private UserDigest winner;
+    private User winner;
     private String judgeId;
     private static final int IMAGE_SELECTED_CODE = 69;
     private static final int REQUEST_IMAGE_CAPTURE = 70;
@@ -144,7 +142,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         setContentView(R.layout.game_activity);
 
         // Limit selection to 1
-        gamePlayersAdapter = new SelectableUserDigestAdapter(this, 1);
+        gamePlayersAdapter = new SelectableUserAdapter(this, 1);
         gameEventListener = new GameEventListener();
         photos = new HashMap<>();
 
@@ -323,11 +321,11 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         if (round != null) {
             this.currentRound = round;
 
-            // TODO: Set Judge on UserDigestListItemView
+            // TODO: Set Judge on UserListItemView
             if (judgeId == null) {
                 judgeId = round.getJudge().toHexString();
 
-                SelectableUserDigestAdapter adapter = (SelectableUserDigestAdapter) ((HeaderViewListAdapter) playersListView.getAdapter()).getWrappedAdapter();
+                SelectableUserAdapter adapter = (SelectableUserAdapter) ((HeaderViewListAdapter) playersListView.getAdapter()).getWrappedAdapter();
             }
 
 
@@ -377,14 +375,15 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         Stream<ObjectId> userIdsAsObjects = Stream.of(game.getPlayers());
         List<String> userIds = userIdsAsObjects
                 .map(ObjectId::toHexString)
-                .filter(id -> !id.equals(userManager.getUserDigestId()))
+                .filter(id -> !id.equals(userManager.getUserId()))
                 .collect(Collectors.toList());
 
-        snaphuntApi.getUserDigestList(userIds, new Callback<List<UserDigest>>() {
+
+        snaphuntApi.listUsers(userIds, new Callback<List<User>>() {
             @Override
-            public void success(List<UserDigest> userDigests, Response response) {
+            public void success(List<User> users, Response response) {
                 Ln.d("got player list");
-                gamePlayersAdapter.loadUsers(userDigests);
+                gamePlayersAdapter.loadUsers(users);
             }
 
             @Override
@@ -402,35 +401,31 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // load photo into photo preview
                 selectedWinningPhoto = null;
-                // Grab userDigestId, getRoundPhotoFromUserDigestId.
-                UserDigestListItemView itemView = (UserDigestListItemView) view;
-                String userDigestId = itemView.getUser().getId().toHexString();
+                // Grab userId, getRoundPhotoFromUserId.
+                UserListItemView itemView = (UserListItemView) view;
+                String userId = itemView.getUser().getId().toHexString();
 
-                SelectableUserDigestAdapter adapter = (SelectableUserDigestAdapter) ((HeaderViewListAdapter) parent.getAdapter()).getWrappedAdapter();
-
-                // testing. incorrect photo showing up.
-//                adapter.getItem(position);
-//                userDigestId = adapter.getItem(position).getId().toHexString();
+                SelectableUserAdapter adapter = (SelectableUserAdapter) ((HeaderViewListAdapter) parent.getAdapter()).getWrappedAdapter();
 
                 // Should I just look up position?
-                Selectable item = adapter.getSelectable(userDigestId);
+                Selectable item = adapter.getSelectable(userId);
 
-                Photo photo = photos.get(userDigestId);
+                Photo photo = photos.get(userId);
                 if (photo == null) {
-                    Ln.d("Fetching image for userDigestId: " + userDigestId);
+                    Ln.d("Fetching image for userId: " + userId);
 
-                    snaphuntApi.getPhotoFromUserDigestId(game.getGameIdAsString(), currentRound.getRoundIdAsString(), userDigestId, new Callback<Photo>() {
+                    snaphuntApi.getPhotoFromUserId(game.getGameIdAsString(), currentRound.getRoundIdAsString(), userId, new Callback<Photo>() {
                         @Override
                         public void success(Photo photo, Response response) {
-                            Ln.d("Got submitted photo from userDigest: " + userDigestId);
+                            Ln.d("Got submitted photo from user: " + userId);
                             photoPreview.setPhoto(photo);
                             selectedWinningPhoto = photo;
-                            photos.put(userDigestId, photo);
+                            photos.put(userId, photo);
                         }
 
                         @Override
                         public void failure(RetrofitError error) {
-                            Ln.e("Error loading photo from userDigest: " + userDigestId);
+                            Ln.e("Error loading photo from user: " + userId);
                         }
                     });
                 } else {
@@ -458,25 +453,25 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                 longClickOnItem = true;
 
                 // Show the fullscreen photoview
-                UserDigestListItemView itemView = (UserDigestListItemView) view;
-                String userDigestId = itemView.getUser().getId().toHexString();
+                UserListItemView itemView = (UserListItemView) view;
+                String userId = itemView.getUser().getId().toHexString();
 
-                Photo photo = photos.get(userDigestId);
+                Photo photo = photos.get(userId);
                 if (photo == null) {
-                    Ln.d("Fetching image for userDigestId: " + userDigestId);
+                    Ln.d("Fetching image for userId: " + userId);
 
-                    snaphuntApi.getPhotoFromUserDigestId(game.getGameIdAsString(), currentRound.getRoundIdAsString(), userDigestId, new Callback<Photo>() {
+                    snaphuntApi.getPhotoFromUserId(game.getGameIdAsString(), currentRound.getRoundIdAsString(), userId, new Callback<Photo>() {
                         @Override
                         public void success(Photo photo, Response response) {
-                            Ln.d("Got submitted photo from userDigest: " + userDigestId);
+                            Ln.d("Got submitted photo from user: " + userId);
                             fullscreenImageView.setPhoto(photo);
                             fullscreenImageView.setVisibility(View.VISIBLE);
-                            photos.put(userDigestId, photo);
+                            photos.put(userId, photo);
                         }
 
                         @Override
                         public void failure(RetrofitError error) {
-                            Ln.e("Error loading photo from userDigest: " + userDigestId);
+                            Ln.e("Error loading photo from user: " + userId);
                         }
                     });
                 } else {
@@ -626,11 +621,10 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
                         stateInfoText.setText(R.string.roundEnded);
                         stateInfoText.setVisibility(View.VISIBLE);
 
-                        snaphuntApi.getUserDigest(currentRound.getWinner().toHexString(), new Callback<UserDigest>() {
+                        snaphuntApi.getUser(currentRound.getWinner().toHexString(), new Callback<User>() {
                             @Override
-                            public void success(UserDigest userDigest, Response response) {
-                                Ln.d("got userdigest of winner");
-                                winner = userDigest;
+                            public void success(User user, Response response) {
+                                winner = user;
                                 updateWinner(winner);
                             }
 
@@ -653,7 +647,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
         }
     }
 
-    private void updateWinner(UserDigest user) {
+    private void updateWinner(User user) {
         stateInfoText.setText(user.getUsername() + " wins the round!");
         stateInfoText.setVisibility(View.VISIBLE);
         if (stateInfoText.getVisibility() == View.VISIBLE) {
@@ -692,7 +686,7 @@ public class GameActivity extends BaseActivity implements ThemeSelection {
     // TODO: verify that judge is being set properly on backend
     private boolean isJudge() {
         String judgeId = currentRound != null ? currentRound.getJudge().toHexString() : "";
-        return userManager.getUserDigestId().equals(judgeId);
+        return userManager.getUser().equals(judgeId);
     }
 
     // TODO: Make a custom view for theme selector.

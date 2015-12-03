@@ -10,7 +10,7 @@ import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
-import com.michaelcrivello.apps.snaphunt.data.model.UserDigest;
+import com.michaelcrivello.apps.snaphunt.data.model.User;
 
 import org.bson.types.ObjectId;
 
@@ -30,7 +30,7 @@ import roboguice.util.Ln;
 public class GameListView extends LinearLayout {
     @Inject SnaphuntApi snaphuntApi;
     Game game;
-    HashMap<ObjectId, UserDigest> usersMap;
+    HashMap<ObjectId, User> usersMap;
 
     ImageView gameIcon;
     TextView gameName;
@@ -50,45 +50,38 @@ public class GameListView extends LinearLayout {
         gameStatus = (TextView) findViewById(R.id.gameStatusText);
         gamePlayers = (TextView) findViewById(R.id.gamePlayersText);
 
+        usersMap = new HashMap<ObjectId, User>();
+
         this.setGame(game);
-        getPlayersDigest();
+        getPlayers();
     }
 
 
     public void setGame(Game game) {
         this.game = game;
+
         String gameName = "Game: " + game.getGameName();
         this.gameName.setText(gameName);
         gameStatus.setText(game.getState());
         gameIcon.setImageResource(R.drawable.ic_launcher);
-
     }
 
-    private void getPlayersDigest() {
+    private void getPlayers() {
         List<String> ids = new ArrayList<>();
         for (ObjectId id : game.getPlayers()) {
-            ids.add(id.toHexString());
-        }
-        snaphuntApi.getUserDigestList(ids, new Callback<List<UserDigest>>() {
-            @Override
-            public void success(List<UserDigest> userDigests, Response response) {
-                updatePlayers(userDigests);
-            }
+            snaphuntApi.getUser(id.toHexString(), new Callback<User>() {
+                @Override
+                public void success(User user, Response response) {
 
-            @Override
-            public void failure(RetrofitError error) {
-                Ln.e("Error populating game player list");
-            }
-        });
-    }
+                    usersMap.put(user.getId(), user);
+                    gamePlayers.append(user.getUsername() + '\n');
+                }
 
-    private void updatePlayers(List<UserDigest> userDigests) {
-        usersMap = new HashMap<ObjectId, UserDigest>();
-        for (UserDigest ud : userDigests) {
-            Ln.d("adding user to playerslist: " + ud.getUsername());
-            usersMap.put(ud.getId(), ud);
-            gamePlayers.append(ud.getUsername() + '\n');
-
+                @Override
+                public void failure(RetrofitError error) {
+                    Ln.e("Error populating game player list");
+                }
+            });
         }
     }
 

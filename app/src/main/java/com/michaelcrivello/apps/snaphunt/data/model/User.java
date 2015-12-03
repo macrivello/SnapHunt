@@ -12,7 +12,6 @@ import java.util.List;
  */
 public class User {
     ObjectId _id;
-    ObjectId userDigest;
     String email;
     String username;
     String authToken;
@@ -109,13 +108,11 @@ public class User {
         return timeLastModifed;
     }
 
-    public ObjectId getUserDigest() {
-        return userDigest;
-    }
-
     @BindingConversion
     public static String convertObjectIdToString(ObjectId objectId){
-        return objectId.toHexString();
+        return objectId != null ? objectId.toHexString() : "[null]";
     }
+
+    // TODO: Create a custom toString, HashCode, and Equals
 }
 

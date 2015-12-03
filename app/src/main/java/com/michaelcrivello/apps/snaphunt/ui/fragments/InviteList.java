@@ -16,9 +16,12 @@ import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.adapter.GameListAdapter;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
+import com.michaelcrivello.apps.snaphunt.event.NewInvite;
 import com.michaelcrivello.apps.snaphunt.ui.GameActivity;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.view.GameListView;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +40,8 @@ public class InviteList extends BaseFragment {
     protected static final String TITLE = "Invites";
     private static final long INVITE_LIST_REFRESH_INTERVAL = 5000;
     @Inject SnaphuntApi snaphuntApi;
+    @Inject Bus bus;
+
     ListView invitesListView;
     GameListAdapter inviteListAdapter;
     ViewGroup emptyListOverlay;
@@ -82,12 +87,14 @@ public class InviteList extends BaseFragment {
     public void onStart() {
         super.onStart();
         inviteListPollingHandler.post(inviteListPollingRunnable);
+        bus.register(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         inviteListPollingHandler.removeCallbacksAndMessages(null);
+        bus.unregister(this);
     }
 
     private void setListListener() {
@@ -144,6 +151,11 @@ public class InviteList extends BaseFragment {
         if (b) {
             inviteListPollingHandler.post(inviteListPollingRunnable);
         }
+    }
+
+    @Subscribe
+    public void onNewInvite (NewInvite newInvite) {
+        loadInvitesList();
     }
 
 }

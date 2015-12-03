@@ -12,8 +12,7 @@ import android.widget.Toast;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
-import com.michaelcrivello.apps.snaphunt.util.GcmUtil;
-import com.michaelcrivello.apps.snaphunt.util.InputValidator;
+import com.michaelcrivello.apps.snaphunt.util.GCMUtil;
 
 import java.util.regex.Pattern;
 
@@ -86,7 +85,7 @@ public class RegisterActivity extends BaseActivity {
 //        }
 
         // TODO: I need to ensure as best as possible that they can have GCM enabled and a reg id
-        gcmRegId = GcmUtil.getRegistrationId();
+        gcmRegId = GCMUtil.getRegistrationId();
         if (gcmRegId.isEmpty()) {
             Ln.e("Registering user with no GCM Id");
         }

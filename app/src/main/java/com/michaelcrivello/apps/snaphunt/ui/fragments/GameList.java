@@ -15,10 +15,12 @@ import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.adapter.GameListAdapter;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
 import com.michaelcrivello.apps.snaphunt.data.model.Game;
+import com.michaelcrivello.apps.snaphunt.event.NewInvite;
 import com.michaelcrivello.apps.snaphunt.ui.GameActivity;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.view.GameListView;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,9 +62,12 @@ public class GameList extends BaseFragment {
             @Override
             public void run() {
                 loadGamesList();
-                gameListPollingHandler.postDelayed(this, GAME_LIST_REFRESH_INTERVAL);
+                // Disabling polling for now
+//                gameListPollingHandler.postDelayed(this, GAME_LIST_REFRESH_INTERVAL);
             }
         };
+
+
     }
 
 

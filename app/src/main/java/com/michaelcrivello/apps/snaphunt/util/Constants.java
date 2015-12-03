@@ -16,14 +16,13 @@ public class Constants {
     public static final String PHOTO_UPLOAD_FOLDER = "photo-upload";
 
     // GCM
-    public static final String GCM_PREFS = "gcm_prefs";
-    public static final String EXTRA_MESSAGE = "message";
-    public static final String PROPERTY_REG_ID = "registration_id";
-    public static final String PROPERTY_APP_VERSION = "appVersion";
-    public static final String GOOGLE_APP_PROJECT_NUMBER = "836468531122";
-    public static final String GCM_INTENT_TASK = "gcm_intent_task";
-    public static final int GCM_REGISTER = 1;
-    public static final int GCM_UNREGISTER = 2;
+    public static final String GCM_SERVER_API_KEY = "AIzaSyCZsXwb79aH7Slm1Bmg3cLBvBVn_fBSccM";
+    public static final String GCM_TOKEN_KEY = "GCM_TOKEN_KEY";
+    public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
+    public static final String REGISTRATION_COMPLETE = "registrationComplete";
+
+    // GCM MESSAGES
+    public static final String NEW_INVITE = "NEW_INVITE";
 
     // API
     public static final String AUTH_HEADER = "x-auth-token";
@@ -40,6 +39,7 @@ public class Constants {
     public static final String USER_ID_KEY = "SNAPHUNT_USER_ID_KEY";
     public static final String USER_TOKEN_KEY = "SNAPHUNT_USER_TOKEN_KEY";
     public static final String API_ENDPOINT_KEY = "SNAPHUNT_API_ENDPOINT_KEY";
+    public static final String PLAY_SERVICES_INSTALLED_KEY= "PLAY_SERVICES_INSTALLED_KEY";
 
     // Intent Bundle Keys
     public static final String GAME_ID_KEY = "GAME_ID_KEY";

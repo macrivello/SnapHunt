@@ -13,7 +13,7 @@ import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.data.model.User;
 import com.michaelcrivello.apps.snaphunt.databinding.DebugDrawerItemUserBinding;
-import com.michaelcrivello.apps.snaphunt.event.UserLogin;
+import com.michaelcrivello.apps.snaphunt.event.UserUpdate;
 import com.michaelcrivello.apps.snaphunt.util.UserManager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -72,7 +72,7 @@ public class UserDebugDrawerModule implements DrawerModule {
     }
 
     @Subscribe
-    public void onNewUserEvent(UserLogin userLogin) {
+    public void onUserUpdate (UserUpdate userUpdate) {
         updateUserDataBinding();
     }
 }

@@ -46,18 +46,6 @@
 
         <TextView
             android:layout_gravity="start|center_vertical"
-            android:text="UserDigest ID"
-            style="@style/Widget.DebugDrawer.RowTitle"
-            />
-        <TextView
-            android:id="@+id/debug_user_digestid"
-            android:layout_width="0dp"
-            android:layout_gravity="start|center_vertical|fill_horizontal"
-            style="@style/Widget.DebugDrawer.RowValue"
-            android:text="@{user.userDigest}"/>
-
-        <TextView
-            android:layout_gravity="start|center_vertical"
             android:text="Email"
             style="@style/Widget.DebugDrawer.RowTitle"
             />

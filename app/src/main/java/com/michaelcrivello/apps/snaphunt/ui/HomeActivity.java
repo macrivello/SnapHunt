@@ -21,6 +21,7 @@ import com.michaelcrivello.apps.snaphunt.ui.fragments.BaseFragment;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.GameList;
 import com.michaelcrivello.apps.snaphunt.ui.fragments.InviteList;
 import com.michaelcrivello.apps.snaphunt.view.SlidingTabLayout;
+import com.squareup.otto.Subscribe;
 
 import roboguice.util.Ln;
 
@@ -37,6 +38,14 @@ public class HomeActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Ln.d("onCreate");
         super.onCreate(savedInstanceState);
+
+        if (userManager.getUser() == null) {
+            startActivity(new Intent(this, WelcomeActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            overridePendingTransition(0, 0);
+        }
+
         setContentView(R.layout.home_activity);
 
         initToolbar();
