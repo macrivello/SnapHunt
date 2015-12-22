@@ -2,25 +2,17 @@ package com.michaelcrivello.apps.snaphunt.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
-import com.michaelcrivello.apps.snaphunt.data.api.ApiHeaders;
-import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
-import com.michaelcrivello.apps.snaphunt.data.model.User;
-
-import java.util.List;
+import com.michaelcrivello.apps.snaphunt.data.model.user.User;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
@@ -56,7 +48,7 @@ public class LoginActivity extends BaseActivity {
 
     // TODO: Login with dev credentials
     private void loginWithDevAccount() {
-        attemptLogin("dev", "dev");
+        attemptLogin("user1", "dev");
     }
 
     //TODO: Validation, POST to API

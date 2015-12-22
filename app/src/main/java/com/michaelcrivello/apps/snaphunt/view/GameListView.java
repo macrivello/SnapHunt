@@ -6,15 +6,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
 import com.google.inject.Inject;
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
-import com.michaelcrivello.apps.snaphunt.data.model.Game;
-import com.michaelcrivello.apps.snaphunt.data.model.User;
+import com.michaelcrivello.apps.snaphunt.data.model.game.Game;
+import com.michaelcrivello.apps.snaphunt.data.model.user.User;
+import com.michaelcrivello.apps.snaphunt.data.model.user.UserDigest;
 
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,7 +34,6 @@ import roboguice.util.Ln;
 public class GameListView extends LinearLayout {
     @Inject SnaphuntApi snaphuntApi;
     Game game;
-    HashMap<ObjectId, User> usersMap;
 
     ImageView gameIcon;
     TextView gameName;
@@ -50,8 +53,6 @@ public class GameListView extends LinearLayout {
         gameStatus = (TextView) findViewById(R.id.gameStatusText);
         gamePlayers = (TextView) findViewById(R.id.gamePlayersText);
 
-        usersMap = new HashMap<ObjectId, User>();
-
         this.setGame(game);
         getPlayers();
     }
@@ -67,14 +68,19 @@ public class GameListView extends LinearLayout {
     }
 
     private void getPlayers() {
-        List<String> ids = new ArrayList<>();
-        for (ObjectId id : game.getPlayers()) {
-            snaphuntApi.getUser(id.toHexString(), new Callback<User>() {
-                @Override
-                public void success(User user, Response response) {
 
-                    usersMap.put(user.getId(), user);
-                    gamePlayers.append(user.getUsername() + '\n');
+
+        List<String> ids = Stream.of(game.getPlayers())
+                .map(ObjectId::toHexString)
+                .collect(Collectors.toList());
+
+
+            snaphuntApi.listUsers(ids, new Callback<List<UserDigest>>() {
+                @Override
+                public void success(List<UserDigest> users, Response response) {
+                    for (UserDigest ud : users){
+                        gamePlayers.append(ud.getUsername() + '\n');
+                    }
                 }
 
                 @Override
@@ -82,7 +88,6 @@ public class GameListView extends LinearLayout {
                     Ln.e("Error populating game player list");
                 }
             });
-        }
     }
 
     public Game getGame() {

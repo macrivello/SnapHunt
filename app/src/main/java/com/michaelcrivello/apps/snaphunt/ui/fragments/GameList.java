@@ -14,13 +14,10 @@ import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.adapter.GameListAdapter;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
-import com.michaelcrivello.apps.snaphunt.data.model.Game;
-import com.michaelcrivello.apps.snaphunt.event.NewInvite;
+import com.michaelcrivello.apps.snaphunt.data.model.game.Game;
 import com.michaelcrivello.apps.snaphunt.ui.GameActivity;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.view.GameListView;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,9 +27,7 @@ import javax.annotation.Nullable;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import roboguice.fragment.RoboFragment;
 import roboguice.util.Ln;
-import rx.Observer;
 
 /**
  * Created by michael on 5/20/15.
@@ -58,13 +53,10 @@ public class GameList extends BaseFragment {
         gameListAdapter = new GameListAdapter(SnaphuntApp.getInstance(), Collections.<Game>emptyList());
 
         gameListPollingHandler = new Handler();
-        gameListPollingRunnable = new Runnable() {
-            @Override
-            public void run() {
-                loadGamesList();
-                // Disabling polling for now
+        gameListPollingRunnable = () -> {
+            loadGamesList();
+            // Disabling polling for now
 //                gameListPollingHandler.postDelayed(this, GAME_LIST_REFRESH_INTERVAL);
-            }
         };
 
 

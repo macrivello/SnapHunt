@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
-import com.michaelcrivello.apps.snaphunt.data.model.User;
+import com.michaelcrivello.apps.snaphunt.data.model.user.User;
 import com.michaelcrivello.apps.snaphunt.util.GCMUtil;
 
 import java.util.regex.Pattern;

@@ -44,6 +44,7 @@ public class HomeActivity extends BaseActivity {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                             Intent.FLAG_ACTIVITY_CLEAR_TASK));
             overridePendingTransition(0, 0);
+            finish();
         }
 
         setContentView(R.layout.home_activity);

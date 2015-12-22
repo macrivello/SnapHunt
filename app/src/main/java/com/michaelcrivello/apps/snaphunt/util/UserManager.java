@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.michaelcrivello.apps.snaphunt.data.api.ApiHeaders;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
-import com.michaelcrivello.apps.snaphunt.data.model.User;
+import com.michaelcrivello.apps.snaphunt.data.model.user.User;
 import com.michaelcrivello.apps.snaphunt.event.UserUpdate;
 import com.squareup.otto.Bus;
 
@@ -27,6 +27,10 @@ public class UserManager {
     @Inject Bus bus;
 
     User user;
+
+    public User getUser() {
+        return user;
+    }
 
     //TODO: Save in SharedPrefs
     public void setUser(User user) {
@@ -65,9 +69,6 @@ public class UserManager {
         }
     }
 
-    public User getUser() {
-        return user;
-    }
 
     /*    Update user on server with new GCM Token.
     *
@@ -75,6 +76,15 @@ public class UserManager {
     *   will only update this field in DB.
     */
     public void updateUserGcmId(final String gcmRegId){
+        if (user == null){
+            return;
+        }
+
+        if (user != null && user.getGcmRegId().equals(gcmRegId)){
+            Ln.d("GCM Reg ID is identical, not updating user in DB");
+            return;
+        }
+
         User tmpUser = new User();
         tmpUser.setGcmRegId(gcmRegId);
 

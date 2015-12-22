@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="user" type="com.michaelcrivello.apps.snaphunt.data.model.User"/>
+        <variable name="user" type="com.michaelcrivello.apps.snaphunt.data.model.user.User"/>
     </data>
 
     <GridLayout

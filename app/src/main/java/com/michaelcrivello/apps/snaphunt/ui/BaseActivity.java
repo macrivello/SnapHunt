@@ -81,8 +81,6 @@ public abstract class BaseActivity extends RoboActionBarActivity {
     protected void onResume() {
         super.onResume();
         bus.register(baseListener);
-
-        bus.post(new AutoRefresh(false));
     }
 
     @Override

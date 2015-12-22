@@ -15,7 +15,7 @@ import com.michaelcrivello.apps.snaphunt.R;
 import com.michaelcrivello.apps.snaphunt.SnaphuntApp;
 import com.michaelcrivello.apps.snaphunt.adapter.GameListAdapter;
 import com.michaelcrivello.apps.snaphunt.data.api.SnaphuntApi;
-import com.michaelcrivello.apps.snaphunt.data.model.Game;
+import com.michaelcrivello.apps.snaphunt.data.model.game.Game;
 import com.michaelcrivello.apps.snaphunt.event.NewInvite;
 import com.michaelcrivello.apps.snaphunt.ui.GameActivity;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
@@ -60,7 +60,7 @@ public class InviteList extends BaseFragment {
             @Override
             public void run() {
                 loadInvitesList();
-                inviteListPollingHandler.postDelayed(this, INVITE_LIST_REFRESH_INTERVAL);
+//                inviteListPollingHandler.postDelayed(this, INVITE_LIST_REFRESH_INTERVAL);
             }
         };
     }
@@ -87,14 +87,12 @@ public class InviteList extends BaseFragment {
     public void onStart() {
         super.onStart();
         inviteListPollingHandler.post(inviteListPollingRunnable);
-        bus.register(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         inviteListPollingHandler.removeCallbacksAndMessages(null);
-        bus.unregister(this);
     }
 
     private void setListListener() {

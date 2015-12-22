@@ -3,18 +3,15 @@ package com.michaelcrivello.apps.snaphunt.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 
 import com.michaelcrivello.apps.snaphunt.R;
-import com.michaelcrivello.apps.snaphunt.data.model.User;
+import com.michaelcrivello.apps.snaphunt.data.model.user.User;
 import com.michaelcrivello.apps.snaphunt.util.Constants;
 import com.michaelcrivello.apps.snaphunt.util.SharedPrefsUtil;
-import com.michaelcrivello.apps.snaphunt.util.UserManager;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 
 /**
@@ -24,8 +21,6 @@ public class WelcomeActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Ln.d("onCreate");
-
         super.onCreate(savedInstanceState);
         String userId = SharedPrefsUtil.sharedPreferences.getString(Constants.USER_ID_KEY, null);
         String userToken = SharedPrefsUtil.sharedPreferences.getString(Constants.USER_TOKEN_KEY, null);;
@@ -35,7 +30,7 @@ public class WelcomeActivity extends BaseActivity {
             // Set authtoken in request headers
             apiHeaders.setAuthToken(userToken);
 
-            snaphuntApi.getUser(userId, new Callback<User>() {
+            snaphuntApi.getUserFromAuthToken(new Callback<User>() {
                 @Override
                 public void success(User user, Response response) {
                     // TODO: Update user info and stuff...
@@ -47,14 +42,18 @@ public class WelcomeActivity extends BaseActivity {
                 @Override
                 public void failure(RetrofitError error) {
                     //
+                    // Quick Fade in welcome screen
+                    setContentView(R.layout.welcome);
+
+                    initDebugDrawer();
                 }
             });
+        } else {
+            // Quick Fade in welcome screen
+            setContentView(R.layout.welcome);
+
+            initDebugDrawer();
         }
-
-        // Quick Fade in welcome screen
-        setContentView(R.layout.welcome);
-
-        initDebugDrawer();
     }
 
     @Override

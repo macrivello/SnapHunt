@@ -1,29 +1,20 @@
 package com.michaelcrivello.apps.snaphunt.data.api;
 
-import android.graphics.Bitmap;
-
-import com.google.gson.Gson;
-import com.michaelcrivello.apps.snaphunt.data.model.Game;
+import com.michaelcrivello.apps.snaphunt.data.model.game.Game;
 import com.michaelcrivello.apps.snaphunt.data.model.Photo;
-import com.michaelcrivello.apps.snaphunt.data.model.Round;
+import com.michaelcrivello.apps.snaphunt.data.model.round.Round;
 import com.michaelcrivello.apps.snaphunt.data.model.Theme;
-import com.michaelcrivello.apps.snaphunt.data.model.User;
-import com.michaelcrivello.apps.snaphunt.util.Constants;
+import com.michaelcrivello.apps.snaphunt.data.model.user.User;
+import com.michaelcrivello.apps.snaphunt.data.model.user.UserDigest;
 import com.michaelcrivello.apps.snaphunt.util.GsonUtil;
-import com.squareup.okhttp.Call;
 
 import java.util.List;
 
 import retrofit.Callback;
-import retrofit.RequestInterceptor;
-import retrofit.client.Response;
 import retrofit.converter.Converter;
 import retrofit.converter.GsonConverter;
 import retrofit.http.Body;
-import retrofit.http.Field;
-import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
-import retrofit.http.Header;
 import retrofit.http.POST;
 import retrofit.http.PUT;
 import retrofit.http.Path;
@@ -44,18 +35,25 @@ public interface SnaphuntApi {
 
     String API_ENDPOINT_LOCAL = "http://192.168.1.89:3000/api/" + API_VERSION + "/";
 
+    String DATA_FORM = "type";
+    String FULL_FORM = "full";
+    String DIGEST_FORM = "digest";
+    String POPULATED_FORM = "populated";
 
     // TODO: Implement API to return Observables
 
     // User
-    @GET("/users")
-    void listUsers(Callback<List<User>> users);
+    @GET("/user")
+    void getUserFromAuthToken(Callback<User> user);
 
     @GET("/users")
-    void listUsers(@Query("id") List<String> userIds, Callback<List<User>> users);
+    void listUsers(Callback<List<UserDigest>> users);
+
+    @GET("/users")
+    void listUsers(@Query("id") List<String> userIds, Callback<List<UserDigest>> users);
 
     @GET("/users/{userId}")
-    void getUser(@Path("userId") String userId, Callback<User> cb);
+    void getUser(@Path("userId") String userId, Callback<UserDigest> cb);
 
     @PUT("/users/{userId}")
     void updateUser(@Body User user, @Path("userId") String userId, Callback<User> cb);
@@ -112,6 +110,6 @@ public interface SnaphuntApi {
     @GET("/games/{gameId}/rounds/{roundId}/themes/{themeId}")
     void getTheme(@Path("gameId") String gameId, @Path("roundId")String roundId, @Path("themeId")String themeId, Callback<Theme> cb);
 
-    @POST("/games/{gameId}/rounds/{roundId}/themes/{themeId}")
+    @GET("/games/{gameId}/rounds/{roundId}/themes/{themeId}")
     void selectTheme(@Path("gameId") String gameId, @Path("roundId")String roundId, @Path("themeId") String themeId, Callback<Round> cb);
 }

@@ -5,8 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.michaelcrivello.apps.snaphunt.data.model.Game;
-import com.michaelcrivello.apps.snaphunt.data.model.User;
+import com.michaelcrivello.apps.snaphunt.data.model.game.Game;
+import com.michaelcrivello.apps.snaphunt.data.model.user.User;
 import com.michaelcrivello.apps.snaphunt.view.GameListView;
 
 import java.util.List;
